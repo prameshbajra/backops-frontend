@@ -29,6 +29,6 @@ jobs:
       - name: Build Angular App
         run: |
           npm run build
-      - name: Upload the generate files to S3 buckey
+      - name: Upload the generate files to S3 bucket
         run: |
-          aws s3 sync --delete ./dist/backops-frontend/browser s3://${{ env.bucket-name }}
+          aws s3 sync --delete ./dist/backop-frontend/browser s3://${{ env.bucket-name }}
