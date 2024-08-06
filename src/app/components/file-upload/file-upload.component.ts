@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { FileUploadService } from '../../services/file-upload.service';
+import { LogoutComponent } from "../logout/logout.component";
 
 @Component({
   selector: 'app-file-upload',
   standalone: true,
-  imports: [],
+  imports: [LogoutComponent],
   templateUrl: './file-upload.component.html',
   styleUrl: './file-upload.component.css',
   providers: [FileUploadService]
