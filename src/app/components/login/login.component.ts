@@ -34,7 +34,11 @@ export class LoginComponent {
       this.authService.login(username, password).subscribe({
         next: (response: SignInResponse) => {
           const idToken = response.AuthenticationResult.IdToken;
+          const accessToken = response.AuthenticationResult.AccessToken;
+          const refreshToken = response.AuthenticationResult.RefreshToken;
           localStorage.setItem('idToken', idToken);
+          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('refreshToken', refreshToken);
           const user: User = {
             username
           }
