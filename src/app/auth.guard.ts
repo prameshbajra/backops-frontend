@@ -3,7 +3,6 @@ import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } fr
 import { AuthService } from './services/auth.service';
 
 
-
 export const authGuard: CanActivateFn = (
   next: ActivatedRouteSnapshot,
   state: RouterStateSnapshot
@@ -11,10 +10,11 @@ export const authGuard: CanActivateFn = (
   const authService = inject(AuthService);
   const router = inject(Router);
 
-
   if (authService.currentUser()) {
+    console.log('User is logged in');
     return true;
   } else {
+    console.log('User data not found on client side.');
     router.navigate(['/login']);
     return false;
   }

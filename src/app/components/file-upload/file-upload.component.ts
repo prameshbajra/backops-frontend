@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FileUploadService } from '../../services/file-upload.service';
 import { LogoutComponent } from "../logout/logout.component";
+import { AuthService } from '../../services/auth.service';
+import { User } from '../../models/User';
 
 @Component({
   selector: 'app-file-upload',
@@ -10,9 +12,16 @@ import { LogoutComponent } from "../logout/logout.component";
   styleUrl: './file-upload.component.css',
   providers: [FileUploadService]
 })
-export class FileUploadComponent {
+export class FileUploadComponent implements OnInit {
 
-  constructor(private fileUploadService: FileUploadService) { }
+  currentUser: User | null | undefined;
+
+  constructor(private fileUploadService: FileUploadService, private authService: AuthService) { }
+
+
+  ngOnInit() {
+    this.currentUser = this.authService.currentUser();
+  }
 
   async onFileSelected(event: any) {
     const files: File[] = event.target.files;

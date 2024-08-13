@@ -1,10 +1,9 @@
-import { Component } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { SignInResponse } from '../../models/SignInResponse';
-import { Utility } from '../../utility';
-import { User } from '../../models/User';
 import { Router } from '@angular/router';
+import { SignInResponse } from '../../models/SignInResponse';
+import { CognitoUserData, User } from '../../models/User';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -13,14 +12,14 @@ import { Router } from '@angular/router';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
 
   loginForm: FormGroup;
 
   constructor(
     private authService: AuthService,
     private formBuilder: FormBuilder,
-    private router: Router,
+    private router: Router
   ) {
     this.loginForm = this.formBuilder.group({
       username: ['', Validators.required],
@@ -28,33 +27,60 @@ export class LoginComponent {
     });
   }
 
-  onLoginClick() {
-    if (this.loginForm.valid) {
-      const { username, password } = this.loginForm.getRawValue();
-      this.authService.login(username, password).subscribe({
-        next: (response: SignInResponse) => {
-          const idToken = response.AuthenticationResult.IdToken;
-          const accessToken = response.AuthenticationResult.AccessToken;
-          const refreshToken = response.AuthenticationResult.RefreshToken;
-          localStorage.setItem('idToken', idToken);
-          localStorage.setItem('accessToken', accessToken);
-          localStorage.setItem('refreshToken', refreshToken);
-          const user: User = {
-            username
-          }
-          this.authService.currentUser.set(user);
-          this.router.navigateByUrl('/');
-        },
-        error: (error) => {
-          if (error.error.name === 'UserNotFoundException') {
-            alert('User not found');
-          }
-          console.error(error);
-        }
+  ngOnInit(): void {
+    this.checkCurrentUser();
+  }
+
+  private checkCurrentUser(): void {
+    const currentUser = this.authService.currentUser();
+
+    if (!currentUser) {
+      this.authService.getCurrentUser().subscribe({
+        next: (cognitoUser: CognitoUserData) => this.handleUserLoginSuccess(cognitoUser),
+        error: (error) => console.error('Error getting current user:', error)
       });
-    } else {
-      alert('Please fill in the required');
     }
   }
 
+  private handleUserLoginSuccess(cognitoUser: CognitoUserData): void {
+    const user: User = {
+      id: cognitoUser.UserAttributes.find(attr => attr.Name === 'sub')?.Value,
+      username: cognitoUser.Username,
+      email: cognitoUser.UserAttributes.find(attr => attr.Name === 'email')?.Value
+    };
+    this.authService.currentUser.set(user);
+    this.router.navigate(['/']);
+  }
+
+  onLoginClick(): void {
+    if (this.loginForm.invalid) {
+      alert('Please fill in the required fields');
+      return;
+    }
+
+    const { username, password } = this.loginForm.value;
+    this.authService.login(username, password).subscribe({
+      next: (response: SignInResponse) => this.handleLoginSuccess(response),
+      error: (error) => this.handleLoginError(error)
+    });
+  }
+
+  private handleLoginSuccess(response: SignInResponse): void {
+    const { IdToken, AccessToken, RefreshToken } = response.AuthenticationResult;
+    localStorage.setItem('idToken', IdToken);
+    localStorage.setItem('accessToken', AccessToken);
+    localStorage.setItem('refreshToken', RefreshToken);
+    this.authService.getCurrentUser().subscribe({
+      next: (cognitoUser: CognitoUserData) => this.handleUserLoginSuccess(cognitoUser),
+      error: (error) => this.handleLoginError(error)
+    });
+  }
+
+  private handleLoginError(error: any): void {
+    if (error.error.name === 'UserNotFoundException') {
+      alert('Wrong username or password');
+    } else {
+      alert('An error occurred. Please try again.');
+    }
+  }
 }

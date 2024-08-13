@@ -4,3 +4,13 @@ export interface User {
   email?: string;
   password?: string;
 }
+
+interface UserAttributes {
+  Name: string;
+  Value: string;
+}
+
+export interface CognitoUserData {
+  UserAttributes: UserAttributes[];
+  Username: string;
+}
