@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FileUploadService } from '../../services/file.service';
+import { FileService } from '../../services/file.service';
 import { LogoutComponent } from "../logout/logout.component";
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../models/User';
@@ -10,13 +10,13 @@ import { User } from '../../models/User';
   imports: [LogoutComponent],
   templateUrl: './file-upload.component.html',
   styleUrl: './file-upload.component.css',
-  providers: [FileUploadService]
+  providers: [FileService]
 })
 export class FileUploadComponent implements OnInit {
 
   currentUser: User | null | undefined;
 
-  constructor(private fileUploadService: FileUploadService, private authService: AuthService) { }
+  constructor(private fileUploadService: FileService, private authService: AuthService) { }
 
 
   ngOnInit() {

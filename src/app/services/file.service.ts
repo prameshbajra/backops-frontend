@@ -1,11 +1,12 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
+import { FileItem } from '../models/FileItem';
 
 @Injectable({
   providedIn: 'root'
 })
-export class FileUploadService {
+export class FileService {
 
   constructor(private http: HttpClient) { }
 
@@ -42,9 +43,9 @@ export class FileUploadService {
     return this.http.post<any>(url, { uploadId, key, parts });
   }
 
-  listAllFiles(): Observable<string[]> {
+  listAllFiles(): Observable<FileItem[]> {
     const url = 'https://wu46gjskr0.execute-api.ap-south-1.amazonaws.com/Prod/list-objects';
-    return this.http.get<string[]>(url);
+    return this.http.get<FileItem[]>(url);
   }
 
   deleteFiles(fileNames: string[]) {
