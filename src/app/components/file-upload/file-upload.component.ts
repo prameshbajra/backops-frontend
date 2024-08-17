@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FileUploadService } from '../../services/file-upload.service';
+import { FileUploadService } from '../../services/file.service';
 import { LogoutComponent } from "../logout/logout.component";
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../models/User';

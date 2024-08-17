@@ -41,4 +41,20 @@ export class FileUploadService {
     const url = 'https://wu46gjskr0.execute-api.ap-south-1.amazonaws.com/Prod/complete';
     return this.http.post<any>(url, { uploadId, key, parts });
   }
+
+  listAllFiles(): Observable<string[]> {
+    const url = 'https://wu46gjskr0.execute-api.ap-south-1.amazonaws.com/Prod/list-objects';
+    return this.http.get<string[]>(url);
+  }
+
+  deleteFiles(fileNames: string[]) {
+    const url = 'https://wu46gjskr0.execute-api.ap-south-1.amazonaws.com/Prod/delete-objects';
+    return this.http.delete(url, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      }),
+      body: { fileNames }
+    });
+  }
 }
+
