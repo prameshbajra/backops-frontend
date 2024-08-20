@@ -57,5 +57,10 @@ export class FileService {
       body: { fileNames }
     });
   }
+
+  downloadFile(fileName: string): Observable<{ signedUrl: string }> {
+    const url = `https://wu46gjskr0.execute-api.ap-south-1.amazonaws.com/Prod/download`;
+    return this.http.post<{ signedUrl: string }>(url, { fileName });
+  }
 }
 

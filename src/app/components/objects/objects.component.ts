@@ -36,6 +36,17 @@ export class ObjectsComponent {
     });
   }
 
+  downloadFile(file: FileItem) {
+    this.fileUploadService.downloadFile(file.key).subscribe({
+      next: (data: { signedUrl: string }) => {
+        window.open(data.signedUrl, "_blank");
+      },
+      error: (error) => {
+        console.error(error);
+      }
+    });
+  }
+
   updateFiles() {
     this.fileUploadService.listAllFiles().subscribe((files: FileItem[]) => {
       this.files = files.map(_ => {
