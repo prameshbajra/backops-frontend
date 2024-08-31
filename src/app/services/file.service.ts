@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { FileItem } from '../models/FileItem';
 
 @Injectable({
@@ -34,22 +35,22 @@ export class FileService {
   }
 
   getPresignedUrls(fileName: string, fileSize: number): Observable<any> {
-    const url = 'https://wu46gjskr0.execute-api.ap-south-1.amazonaws.com/Prod/upload';
+    const url = `${environment.AUTH_API_URL}upload`;
     return this.http.post<any>(url, { fileName, fileSize });
   }
 
   completeMultipartUpload(uploadId: string, key: string, parts: any[]): Observable<any> {
-    const url = 'https://wu46gjskr0.execute-api.ap-south-1.amazonaws.com/Prod/complete';
+    const url = `${environment.AUTH_API_URL}complete`;
     return this.http.post<any>(url, { uploadId, key, parts });
   }
 
   listAllFiles(): Observable<FileItem[]> {
-    const url = 'https://wu46gjskr0.execute-api.ap-south-1.amazonaws.com/Prod/list-objects';
+    const url = `${environment.AUTH_API_URL}list-objects`;
     return this.http.get<FileItem[]>(url);
   }
 
   deleteFiles(fileNames: string[]) {
-    const url = 'https://wu46gjskr0.execute-api.ap-south-1.amazonaws.com/Prod/delete-objects';
+    const url = `${environment.AUTH_API_URL}delete-objects`;
     return this.http.delete(url, {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
@@ -59,7 +60,7 @@ export class FileService {
   }
 
   downloadFile(fileName: string): Observable<{ signedUrl: string }> {
-    const url = `https://wu46gjskr0.execute-api.ap-south-1.amazonaws.com/Prod/download`;
+    const url = `${environment.AUTH_API_URL}download`;
     return this.http.post<{ signedUrl: string }>(url, { fileName });
   }
 }

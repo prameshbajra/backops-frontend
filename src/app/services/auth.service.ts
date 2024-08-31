@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
+import { catchError, Observable, of, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { SignInResponse } from '../models/SignInResponse';
-import { catchError, Observable, of, tap } from 'rxjs';
 import { CognitoUserData, User } from '../models/User';
 
 @Injectable({
