@@ -54,9 +54,9 @@ export class FileService {
     });
   }
 
-  downloadFile(fileName: string): Observable<{ signedUrl: string }> {
+  downloadFiles(getThumbnail: boolean = false, fileNames: string[]): Observable<{ signedUrls: { [key: string]: string; }; }> {
     const url = `${environment.AUTH_API_URL}download`;
-    return this.http.post<{ signedUrl: string }>(url, { fileName });
+    return this.http.post<{ signedUrls: { [key: string]: string; }; }>(url, { getThumbnail, fileNames });
   }
 }
 

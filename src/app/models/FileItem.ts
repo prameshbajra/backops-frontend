@@ -8,5 +8,5 @@ export interface FileItem {
   SK: string;
   fileName: string;
   fileSize: number;
-  thumbnailKey: string;
+  fileUrl?: string;
 }

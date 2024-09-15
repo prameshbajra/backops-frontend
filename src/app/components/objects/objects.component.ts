@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
-import { FileService } from '../../services/file.service';
 import { FileItem } from '../../models/FileItem';
 import { FileSizePipe } from '../../pipes/filesize.pipe';
+import { AuthService } from '../../services/auth.service';
 import { DbService } from '../../services/db.service';
+import { FileService } from '../../services/file.service';
 
 @Component({
   selector: 'app-objects',
@@ -39,9 +39,9 @@ export class ObjectsComponent {
   }
 
   downloadFile(file: FileItem) {
-    this.fileUploadService.downloadFile(file.fileName).subscribe({
-      next: (data: { signedUrl: string }) => {
-        window.open(data.signedUrl, "_blank");
+    this.fileUploadService.downloadFiles(false, [file.fileName]).subscribe({
+      next: (data) => {
+        window.open(data.signedUrls[file.fileName], "_blank");
       },
       error: (error) => {
         console.error(error);
@@ -53,6 +53,21 @@ export class ObjectsComponent {
     this.dbService.getObjectList('2024-09').subscribe({
       next: (data) => {
         this.files = data.items;
+        const fileNames = this.files.map((file) => file.fileName);
+        console.log(fileNames);
+        this.fileUploadService.downloadFiles(true, fileNames).subscribe({
+          next: (data) => {
+            const signedUrls = data.signedUrls;
+            this.files.forEach((file) => {
+              file.fileUrl = signedUrls[file.fileName];
+            });
+            console.log(this.files);
+          },
+          error: (error) => {
+            console.error(error);
+          }
+        });
+
       },
       error: (error) => {
         console.error(error);
