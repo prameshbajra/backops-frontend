@@ -44,11 +44,6 @@ export class FileService {
     return this.http.post<any>(url, { uploadId, key, parts });
   }
 
-  listAllFiles(): Observable<FileItem[]> {
-    const url = `${environment.AUTH_API_URL}list-objects`;
-    return this.http.get<FileItem[]>(url);
-  }
-
   deleteFiles(fileNames: string[]) {
     const url = `${environment.AUTH_API_URL}delete-objects`;
     return this.http.delete(url, {

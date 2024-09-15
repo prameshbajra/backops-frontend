@@ -1,7 +1,12 @@
+export interface GetObjectListResponse {
+  items: FileItem[];
+}
+
+
 export interface FileItem {
-  key: string,
-  size: number,
-  lastModified: string,
-  eTag: string,
-  storageClass: string
+  PK: string;
+  SK: string;
+  fileName: string;
+  fileSize: number;
+  thumbnailKey: string;
 }

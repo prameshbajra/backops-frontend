@@ -4,6 +4,7 @@ import { AuthService } from '../../services/auth.service';
 import { FileService } from '../../services/file.service';
 import { FileItem } from '../../models/FileItem';
 import { FileSizePipe } from '../../pipes/filesize.pipe';
+import { DbService } from '../../services/db.service';
 
 @Component({
   selector: 'app-objects',
@@ -21,23 +22,24 @@ export class ObjectsComponent {
 
   constructor(
     private fileUploadService: FileService,
-    private authService: AuthService
+    private authService: AuthService,
+    private dbService: DbService
   ) { }
 
   ngOnInit() {
-    this.updateFiles();
+    this.load();
   }
 
   deleteFile(file: FileItem) {
-    this.fileUploadService.deleteFiles([file.key]).subscribe({
+    this.fileUploadService.deleteFiles([file.fileName]).subscribe({
       next: () => {
-        this.updateFiles();
+        this.load();
       }
     });
   }
 
   downloadFile(file: FileItem) {
-    this.fileUploadService.downloadFile(file.key).subscribe({
+    this.fileUploadService.downloadFile(file.fileName).subscribe({
       next: (data: { signedUrl: string }) => {
         window.open(data.signedUrl, "_blank");
       },
@@ -47,12 +49,15 @@ export class ObjectsComponent {
     });
   }
 
-  updateFiles() {
-    this.fileUploadService.listAllFiles().subscribe((files: FileItem[]) => {
-      this.files = files.map(_ => {
-        _.key = _.key.replace(`${this.authService.currentUser()?.id}/`, '');
-        return _;
-      });
+  load() {
+    this.dbService.getObjectList('2024-09').subscribe({
+      next: (data) => {
+        this.files = data.items;
+      },
+      error: (error) => {
+        console.error(error);
+      }
     });
   }
+
 }
