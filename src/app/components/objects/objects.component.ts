@@ -54,7 +54,7 @@ export class ObjectsComponent {
       next: (data) => {
         this.files = data.items;
         const fileNames = this.files.map((file) => file.fileName);
-        console.log(fileNames);
+        if (fileNames.length === 0) return;
         this.fileUploadService.downloadFiles(true, fileNames).subscribe({
           next: (data) => {
             const signedUrls = data.signedUrls;

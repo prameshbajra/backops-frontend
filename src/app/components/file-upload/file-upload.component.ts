@@ -3,6 +3,8 @@ import { FileService } from '../../services/file.service';
 import { LogoutComponent } from "../logout/logout.component";
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../models/User';
+import { from, mergeMap } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-file-upload',
@@ -25,21 +27,47 @@ export class FileUploadComponent implements OnInit {
 
   async onFileSelected(event: any) {
     const files: File[] = event.target.files;
+    const concurrentUploads = environment.CONCURRENT_UPLOADS;
 
-    for (const file of files) {
-      this.fileUploadService.getPresignedUrls(file.name, file.size).subscribe(async (data) => {
-        const presignedUrls = data.presignedUrls;
-        const uploadResponses = await this.fileUploadService.uploadFile(file, presignedUrls);
-        const parts = uploadResponses.map((response, index) => ({
-          ETag: response.headers.get('ETag'),
-          PartNumber: index + 1
-        }));
-        const uploadId = data.uploadId;
-        const key = file.name;
-        this.fileUploadService.completeMultipartUpload(uploadId, key, parts).subscribe((response) => {
-          console.log('Upload complete:', response);
-        });
-      });
-    }
+    from(files).pipe(mergeMap(file => this.uploadSingleFile(file), concurrentUploads)).subscribe({
+      next: (result) => {
+        console.log('File uploaded successfully', result);
+      },
+      error: (error) => {
+        console.error('Error during file upload', error);
+      },
+      complete: () => {
+        console.log('All files uploaded');
+      }
+    });
   }
+
+  uploadSingleFile(file: File): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      this.fileUploadService.getPresignedUrls(file.name, file.size).subscribe(async (data) => {
+        try {
+          const presignedUrls = data.presignedUrls;
+          const uploadResponses = await this.fileUploadService.uploadFile(file, presignedUrls);
+          const parts = uploadResponses.map((response, index) => ({
+            ETag: response.headers.get('ETag'),
+            PartNumber: index + 1
+          }));
+          const uploadId = data.uploadId;
+          const key = file.name;
+
+          this.fileUploadService.completeMultipartUpload(uploadId, key, parts).subscribe((response) => {
+            console.log('Upload complete:', response);
+            resolve();
+          }, (error) => {
+            console.error('Upload failed:', error);
+            reject(error);
+          });
+        } catch (error) {
+          console.error('Error uploading file:', error);
+          reject(error);
+        }
+      });
+    });
+  }
+
 }
