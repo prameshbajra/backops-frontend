@@ -1,4 +1,4 @@
-<div class="flex justify-center items-center gap-2 flex-wrap mx-2 my-20">
+<div class="object-container flex justify-center items-center gap-2 flex-wrap mx-2 my-20">
     @for (file of files; track file.PK) {
       <div>
         <img class="w-48 h-48 object-cover rounded-lg"  [src]="file.fileUrl" alt="" (click)="downloadFile(file)">

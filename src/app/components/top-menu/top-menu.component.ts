@@ -17,7 +17,7 @@ export class TopMenuComponent {
   @HostListener('document:click', ['$event'])
   clickout(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    if (this.bottomSheetRef && target.nodeName !== 'BUTTON') {
+    if (this.bottomSheetRef && target.classList.contains('object-container')) {
       this.bottomSheetRef.dismiss();
     }
   }
