@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { Component, HostListener, inject } from '@angular/core';
+import { MatBottomSheet, MatBottomSheetModule, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { FileUploadComponent } from '../file-upload/file-upload.component';
 
 @Component({
@@ -12,9 +12,29 @@ import { FileUploadComponent } from '../file-upload/file-upload.component';
 export class TopMenuComponent {
 
   private _bottomSheet = inject(MatBottomSheet);
+  private bottomSheetRef: MatBottomSheetRef | undefined;
+
+  @HostListener('document:click', ['$event'])
+  clickout(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (this.bottomSheetRef && target.nodeName !== 'BUTTON') {
+      this.bottomSheetRef.dismiss();
+    }
+  }
 
   openBottomSheet(): void {
-    this._bottomSheet.open(FileUploadComponent);
+    // Open the bottom sheet with configuration
+    this.bottomSheetRef = this._bottomSheet.open(FileUploadComponent, {
+      hasBackdrop: true,  // Ensure the backdrop is visible
+    });
+
+    // Listen for backdrop clicks to close the bottom sheet
+    if (this.bottomSheetRef) {
+      this.bottomSheetRef.backdropClick().subscribe(() => {
+        console.log('Backdrop clicked, closing bottom sheet.');
+        this.bottomSheetRef?.dismiss();
+      });
+    }
   }
 
 }
