@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { FileService } from '../../services/file.service';
-import { LogoutComponent } from "../logout/logout.component";
-import { AuthService } from '../../services/auth.service';
-import { User } from '../../models/User';
 import { from, mergeMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { AuthService } from '../../services/auth.service';
+import { FileService } from '../../services/file.service';
+import { LogoutComponent } from "../logout/logout.component";
 
 @Component({
   selector: 'app-file-upload',
@@ -16,13 +15,12 @@ import { environment } from '../../../environments/environment';
 })
 export class FileUploadComponent implements OnInit {
 
-  currentUser: User | null | undefined;
 
   constructor(private fileUploadService: FileService, private authService: AuthService) { }
 
 
   ngOnInit() {
-    this.currentUser = this.authService.currentUser();
+
   }
 
   async onFileSelected(event: any) {

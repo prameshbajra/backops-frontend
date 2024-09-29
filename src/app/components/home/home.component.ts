@@ -1,17 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FileUploadComponent } from '../file-upload/file-upload.component';
-import { LogoutComponent } from '../logout/logout.component';
 import { ObjectsComponent } from '../objects/objects.component';
+import { TopMenuComponent } from '../top-menu/top-menu.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
     CommonModule,
-    LogoutComponent,
-    FileUploadComponent,
-    ObjectsComponent
+    ObjectsComponent,
+    TopMenuComponent
   ],
   templateUrl: 'home.component.html',
   styleUrl: './home.component.css',
