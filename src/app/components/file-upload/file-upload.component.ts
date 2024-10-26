@@ -15,12 +15,9 @@ import { LogoutComponent } from "../logout/logout.component";
 })
 export class FileUploadComponent implements OnInit {
 
-
   constructor(private fileUploadService: FileService, private authService: AuthService) { }
 
-
   ngOnInit() {
-
   }
 
   async onFileSelected(event: any) {

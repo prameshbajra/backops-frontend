@@ -50,7 +50,7 @@ export class ObjectsComponent {
   }
 
   load() {
-    this.dbService.getObjectList('2024-09').subscribe({
+    this.dbService.getObjectList('2024-10').subscribe({
       next: (data) => {
         this.files = data.items;
         const fileNames = this.files.map((file) => file.fileName);
