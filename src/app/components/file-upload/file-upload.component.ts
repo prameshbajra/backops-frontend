@@ -1,3 +1,4 @@
+import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { from, mergeMap } from 'rxjs';
@@ -5,7 +6,6 @@ import { environment } from '../../../environments/environment';
 import { AuthService } from '../../services/auth.service';
 import { FileService } from '../../services/file.service';
 import { LogoutComponent } from "../logout/logout.component";
-import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-file-upload',
@@ -82,12 +82,15 @@ export class FileUploadComponent implements OnInit {
           const uploadId = data.uploadId;
           const key = file.name;
 
-          this.fileUploadService.completeMultipartUpload(uploadId, key, parts).subscribe((response) => {
-            console.log('Upload complete:', response);
-            resolve();
-          }, (error) => {
-            console.error('Upload failed:', error);
-            reject(error);
+          this.fileUploadService.completeMultipartUpload(uploadId, key, parts, file.name, file.size).subscribe({
+            next: (result) => {
+              console.log('File uploaded successfully:', result);
+              resolve();
+            },
+            error: (error) => {
+              console.error('Error completing multipart upload:', error);
+              reject(error);
+            }
           });
         } catch (error) {
           console.error('Error uploading file:', error);
