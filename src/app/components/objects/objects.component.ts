@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { delay, Subscription } from 'rxjs';
 import { FileItem } from '../../models/FileItem';
 import { FileSizePipe } from '../../pipes/filesize.pipe';
-import { AuthService } from '../../services/auth.service';
 import { DbService } from '../../services/db.service';
 import { FileService } from '../../services/file.service';
 
@@ -19,15 +19,22 @@ import { FileService } from '../../services/file.service';
 export class ObjectsComponent {
 
   files: FileItem[] = [];
+  shouldUpdateObjectListSubscription!: Subscription;
 
   constructor(
     private fileUploadService: FileService,
-    private authService: AuthService,
     private dbService: DbService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
-    this.load();
+    this.shouldUpdateObjectListSubscription = this.fileUploadService.getShouldUpdateObjectList().subscribe({
+      next: (value) => {
+        if (value) {
+          this.load();
+        }
+      }
+    });
   }
 
   deleteFile(file: FileItem) {
@@ -50,7 +57,7 @@ export class ObjectsComponent {
   }
 
   load() {
-    this.dbService.getObjectList('2024-10').subscribe({
+    this.dbService.getObjectList('2024-11').subscribe({
       next: (data) => {
         this.files = data.items;
         const fileNames = this.files.map((file) => file.fileName);
@@ -73,6 +80,10 @@ export class ObjectsComponent {
         console.error(error);
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.shouldUpdateObjectListSubscription?.unsubscribe();
   }
 
 }

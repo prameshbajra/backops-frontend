@@ -13,7 +13,6 @@ import { trigger, transition, style, animate } from '@angular/animations';
   imports: [CommonModule, LogoutComponent],
   templateUrl: './file-upload.component.html',
   styleUrl: './file-upload.component.css',
-  providers: [FileService],
   animations: [
     trigger('slideButton', [
       transition(':enter', [
@@ -65,7 +64,7 @@ export class FileUploadComponent implements OnInit {
       },
       complete: () => {
         this.isUploading = false;
-        console.log('All files uploaded');
+        this.fileUploadService.setShouldUpdateObjectList(true);
       }
     });
   }

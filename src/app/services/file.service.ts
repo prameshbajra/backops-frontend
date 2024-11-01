@@ -1,15 +1,24 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { FileItem } from '../models/FileItem';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FileService {
 
+  shouldUpdateObjectList: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
+
   constructor(private http: HttpClient) { }
+
+  getShouldUpdateObjectList(): Observable<boolean> {
+    return this.shouldUpdateObjectList.asObservable();
+  }
+
+  setShouldUpdateObjectList(value: boolean) {
+    this.shouldUpdateObjectList.next(value);
+  }
 
   uploadPart(fileChunk: Blob, presignedUrl: string, partNo: number): Observable<any> {
     const headers = new HttpHeaders({
