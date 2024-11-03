@@ -4,6 +4,9 @@ import { Subscription } from 'rxjs';
 import { FileItem } from '../../models/FileItem';
 import { FileSizePipe } from '../../pipes/filesize.pipe';
 import { DbService } from '../../services/db.service';
+
+import { animate, state, style, transition, trigger } from '@angular/animations';
+import { MatIconModule } from '@angular/material/icon';
 import { FileService } from '../../services/file.service';
 
 @Component({
@@ -11,10 +14,24 @@ import { FileService } from '../../services/file.service';
   standalone: true,
   imports: [
     CommonModule,
+    MatIconModule,
     FileSizePipe
   ],
   templateUrl: 'objects.component.html',
   styleUrl: './objects.component.css',
+  animations: [
+    trigger('slideInOut', [
+      state('in', style({ transform: 'translateY(0)' })),
+      state('out', style({ transform: 'translateY(100%)' })),
+      transition('out => in', [
+        style({ transform: 'translateY(100%)' }),
+        animate('300ms ease-in-out')
+      ]),
+      transition('in => out', [
+        animate('300ms ease-in-out', style({ transform: 'translateY(100%)' }))
+      ])
+    ])
+  ]
 })
 export class ObjectsComponent {
 
@@ -24,8 +41,7 @@ export class ObjectsComponent {
   constructor(
     private fileUploadService: FileService,
     private dbService: DbService
-  ) {
-  }
+  ) { }
 
   ngOnInit() {
     this.shouldUpdateObjectListSubscription = this.fileUploadService.getShouldUpdateObjectList().subscribe({
@@ -37,18 +53,30 @@ export class ObjectsComponent {
     });
   }
 
-  deleteFile(file: FileItem) {
-    this.fileUploadService.deleteFiles([file.fileName]).subscribe({
+  get slideState() {
+    return this.getSelectedFilesCount() > 0 ? 'in' : 'out';
+  }
+
+  getSelectedFilesCount(): number {
+    return this.files.filter(file => file.isSelected).length;
+  }
+
+  deleteSelectedFiles() {
+    const selectedFiles = this.files.filter(file => file.isSelected).map(file => file.fileName);
+    this.fileUploadService.deleteFiles(selectedFiles).subscribe({
       next: () => {
         this.load();
       }
     });
   }
 
-  downloadFile(file: FileItem) {
-    this.fileUploadService.downloadFiles(false, [file.fileName]).subscribe({
+  downloadSelectedFiles() {
+    const selectedFiles = this.files.filter(file => file.isSelected).map(file => file.fileName);
+    this.fileUploadService.downloadFiles(false, selectedFiles).subscribe({
       next: (data) => {
-        window.open(data.signedUrls[file.fileName], "_blank");
+        selectedFiles.forEach(fileName => {
+          window.open(data.signedUrls[fileName], "_blank");
+        });
       },
       error: (error) => {
         console.error(error);
@@ -75,7 +103,6 @@ export class ObjectsComponent {
             console.error(error);
           }
         });
-
       },
       error: (error) => {
         console.error(error);
@@ -100,5 +127,4 @@ export class ObjectsComponent {
   ngOnDestroy() {
     this.shouldUpdateObjectListSubscription?.unsubscribe();
   }
-
 }
