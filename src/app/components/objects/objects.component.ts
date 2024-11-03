@@ -74,8 +74,11 @@ export class ObjectsComponent {
     const selectedFiles = this.files.filter(file => file.isSelected).map(file => file.fileName);
     this.fileUploadService.downloadFiles(false, selectedFiles).subscribe({
       next: (data) => {
-        selectedFiles.forEach(fileName => {
-          window.open(data.signedUrls[fileName], "_blank");
+        const signedUrls = selectedFiles.map(fileName => data.signedUrls[fileName]);
+        signedUrls.forEach((url, index) => {
+          setTimeout(() => {
+            window.open(url, "_blank");
+          }, index * 500);
         });
       },
       error: (error) => {
