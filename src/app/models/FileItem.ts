@@ -9,4 +9,5 @@ export interface FileItem {
   fileName: string;
   fileSize: number;
   fileUrl?: string;
+  isSelected?: boolean;
 }

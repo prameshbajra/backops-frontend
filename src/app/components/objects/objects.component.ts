@@ -19,6 +19,7 @@ import { FileService } from '../../services/file.service';
 export class ObjectsComponent {
 
   files: FileItem[] = [];
+
   shouldUpdateObjectListSubscription!: Subscription;
 
   constructor(
@@ -67,6 +68,7 @@ export class ObjectsComponent {
             const signedUrls = data.signedUrls;
             this.files.forEach((file) => {
               file.fileUrl = signedUrls[file.fileName];
+              file.isSelected = false;
             });
             console.log(this.files);
           },
@@ -80,6 +82,10 @@ export class ObjectsComponent {
         console.error(error);
       }
     });
+  }
+
+  toggleSelection(file: FileItem) {
+    file.isSelected = !file.isSelected;
   }
 
   ngOnDestroy() {
