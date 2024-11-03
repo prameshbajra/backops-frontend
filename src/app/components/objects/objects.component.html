@@ -23,7 +23,7 @@
   }
 </div>
 
-<div [@slideInOut]="slideState" class="z-20 fixed bottom-0 left-0 right-0 bg-gray-100 p-4 flex justify-center gap-4 dark:bg-gray-900">
+<div [@slideInOut]="slideState" class="z-20 fixed bottom-0 left-0 right-0 bg-gray-100 p-4 flex justify-center gap-4 dark:bg-gray-950">
   <button (click)="deleteSelectedFiles()" class="px-3 py-1 bg-red-500 text-white text-sm rounded flex items-center gap-1 hover:bg-red-700">
     <mat-icon>delete</mat-icon>
     <span>{{getSelectedFilesCount() > 1 ? 'Delete all': 'Delete'}}</span>

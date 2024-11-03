@@ -62,7 +62,7 @@ export class ObjectsComponent {
   }
 
   deleteSelectedFiles() {
-    const selectedFiles = this.files.filter(file => file.isSelected).map(file => file.fileName);
+    const selectedFiles = this.files.filter(file => file.isSelected);
     this.fileUploadService.deleteFiles(selectedFiles).subscribe({
       next: () => {
         this.load();

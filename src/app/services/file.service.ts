@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { FileItem } from '../models/FileItem';
 
 @Injectable({
   providedIn: 'root'
@@ -53,13 +54,13 @@ export class FileService {
     return this.http.post<any>(url, { uploadId, key, parts, fileName, fileSize });
   }
 
-  deleteFiles(fileNames: string[]) {
+  deleteFiles(files: FileItem[]) {
     const url = `${environment.AUTH_API_URL}delete-objects`;
     return this.http.delete(url, {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
       }),
-      body: { fileNames }
+      body: { files }
     });
   }
 
