@@ -66,6 +66,9 @@ export class ObjectsComponent {
     this.fileUploadService.deleteFiles(selectedFiles).subscribe({
       next: () => {
         this.load();
+      },
+      error: (error) => {
+        console.error(error);
       }
     });
   }
