@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { delay, Subscription } from 'rxjs';
+import { Component, ViewChild } from '@angular/core';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { Subscription } from 'rxjs';
 import { FileItem } from '../../models/FileItem';
 import { FileSizePipe } from '../../pipes/filesize.pipe';
 import { DbService } from '../../services/db.service';
@@ -11,6 +12,7 @@ import { FileService } from '../../services/file.service';
   standalone: true,
   imports: [
     CommonModule,
+    MatMenuModule,
     FileSizePipe
   ],
   templateUrl: 'objects.component.html',
@@ -18,8 +20,10 @@ import { FileService } from '../../services/file.service';
 })
 export class ObjectsComponent {
 
-  files: FileItem[] = [];
+  @ViewChild(MatMenuTrigger) matMenuTrigger!: MatMenuTrigger;
 
+  files: FileItem[] = [];
+  contextMenuPosition = { x: '0px', y: '0px' };
   shouldUpdateObjectListSubscription!: Subscription;
 
   constructor(
@@ -55,6 +59,14 @@ export class ObjectsComponent {
         console.error(error);
       }
     });
+  }
+
+  onRightClick(event: MouseEvent, file: FileItem): void {
+    event.preventDefault();
+    console.log('Right Clicked: ', file);
+    this.contextMenuPosition.x = event.clientX + 'px';
+    this.contextMenuPosition.y = event.clientY + 'px';
+    this.matMenuTrigger.openMenu();
   }
 
   load() {
