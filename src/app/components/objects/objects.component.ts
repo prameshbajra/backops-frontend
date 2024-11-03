@@ -84,6 +84,16 @@ export class ObjectsComponent {
     });
   }
 
+  selectObject(file: FileItem): void {
+    this.files.forEach(_ => {
+      if (file.fileName === _.fileName) {
+        file.isSelected = !file.isSelected;
+      } else {
+        _.isSelected = false;
+      }
+    });
+  }
+
   toggleSelection(file: FileItem) {
     file.isSelected = !file.isSelected;
   }

@@ -1,9 +1,16 @@
-<div class="object-container flex justify-center items-center gap-2 flex-wrap px-2 py-20">
+<div class="object-container flex justify-start items-center gap-2 flex-wrap pl-16 py-20">
   @for (file of files; track file.PK) {
-  <div class="relative group" [ngClass]="{
-      'outline outline-2 outline-blue-500 rounded-lg': file.isSelected
-    }" (click)="toggleSelection(file)">
-    <img class="w-48 h-48 object-cover rounded-lg transition-transform" [ngClass]="{ 'scale-95': file.isSelected }" [src]="file.fileUrl" alt="" />
-  </div>
+    <div class="relative group" [ngClass]="{
+        'outline outline-2 outline-blue-500 rounded-lg': file.isSelected
+      }">
+      <input type="checkbox" (click)="toggleSelection(file)" [checked]="file.isSelected"
+        class="z-10 absolute top-2 left-2 w-6 h-6 rounded-full appearance-none border-2 border-gray-500 bg-white cursor-pointer transition-colors checked:bg-blue-500 checked:border-blue-500">
+      <span class="z-10 absolute top-2 left-2 w-6 h-6 flex items-center justify-center text-white pointer-events-none"
+        [ngClass]="{ 'opacity-100': file.isSelected, 'opacity-0': !file.isSelected }">
+        ✔
+      </span>
+      <img (click)="selectObject(file)" class="w-48 h-48 object-cover rounded-lg transition-transform"
+        [ngClass]="{ 'scale-95': file.isSelected }" [src]="file.fileUrl" alt="" />
+    </div>
   }
 </div>
