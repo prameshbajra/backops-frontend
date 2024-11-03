@@ -1,11 +1,6 @@
 <div class="object-container flex justify-start items-center gap-2 flex-wrap pl-16 py-20">
   @for (file of files; track file.PK) {
-  <div class="relative group" [ngClass]="{ 'outline outline-2 outline-blue-500 rounded-lg': file.isSelected }" (contextmenu)="onRightClick($event, file)">
-
-    <!-- This is necessary because FUCK angular material -->
-    <div style="visibility: hidden; position: fixed" [style.left]="contextMenuPosition.x" [style.top]="contextMenuPosition.y" [matMenuTriggerFor]="contextMenu">
-    </div>
-
+  <div class="relative group" [ngClass]="{ 'outline outline-2 outline-blue-500 rounded-lg': file.isSelected }">
     <input type="checkbox" (click)="toggleSelection(file)" [checked]="file.isSelected"
       class="z-10 absolute top-2 left-2 w-6 h-6 rounded-full appearance-none border-2 border-gray-500 bg-white cursor-pointer transition-colors checked:bg-blue-500 checked:border-blue-500">
     <span class="z-10 absolute top-2 left-2 w-6 h-6 flex items-center justify-center text-white pointer-events-none"
@@ -17,10 +12,3 @@
   </div>
   }
 </div>
-
-
-<!-- Context Menu -->
-<mat-menu #contextMenu="matMenu">
-  <button mat-menu-item>Download</button>
-  <button mat-menu-item>Delete</button>
-</mat-menu>
