@@ -63,7 +63,6 @@ export class ObjectsComponent {
 
   onObjectAreaClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    console.log(target.tagName);
     if (target.tagName.includes('INPUT') || target.tagName.includes('IMG')) {
       return;
     }

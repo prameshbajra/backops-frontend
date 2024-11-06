@@ -11,7 +11,8 @@
     @for (file of files; track file.PK) {
       <div class="relative group w-24 h-24 sm:w-48 sm:h-48" [ngClass]="{ 'outline outline-2 outline-blue-500 rounded-lg': file.isSelected }">
         <input type="checkbox" (click)="toggleSelection(file)" [checked]="file.isSelected"
-          class="z-10 absolute top-2 left-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full appearance-none border-2 border-gray-500 bg-white cursor-pointer transition-colors checked:bg-blue-500 checked:border-blue-500">
+          class="z-10 absolute top-2 left-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full appearance-none border-2 border-gray-500 bg-white cursor-pointer transition-colors checked:bg-blue-500 checked:border-blue-500"
+          [ngClass]="file.isSelected ? 'opacity-100' : 'opacity-60'">
         <span class="z-10 absolute top-2 left-2 w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-white pointer-events-none"
           [ngClass]="{ 'opacity-100': file.isSelected, 'opacity-0': !file.isSelected }">
           ✔
