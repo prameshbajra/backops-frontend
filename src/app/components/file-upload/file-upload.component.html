@@ -1,21 +1,20 @@
 <input #fileInput id="file-upload" type="file" multiple="multiple" accept="image/*,video/*" (change)="onFileSelected($event)" class="hidden" />
 
-<div class="flex items-center justify-center w-full gap-4">
-  <div *ngIf="isUploading" [@slideUpload] class="flex items-center gap-4">
-    <p class="text-sm text-gray-600 whitespace-nowrap">
+<div class="flex flex-col sm:flex-row items-center justify-center w-full gap-4 sm:gap-4 px-4 sm:px-0">
+  <div *ngIf="isUploading" [@slideUpload] class="flex flex-col sm:flex-row items-center gap-4 w-full mb-4 sm:mb-0">
+    <p class="text-xs sm:text-sm text-gray-600 whitespace-nowrap">
       Uploading: {{ completedFiles }}/{{ totalFiles }} files
     </p>
-    <div class="w-80 bg-gray-200 rounded-full h-2.5">
-      <div class="bg-blue-600 h-2.5 rounded-full" [style.width]="(completedFiles / totalFiles * 100) + '%'">
+    <div class="w-full sm:w-80 bg-gray-200 rounded-full h-2 sm:h-2.5">
+      <div class="bg-blue-600 h-2 sm:h-2.5 rounded-full" [style.width]="(completedFiles / totalFiles * 100) + '%'">
       </div>
     </div>
   </div>
 
   <button type="button" (click)="fileInput.click()" *ngIf="!isUploading" [@slideButton]
     [class]="isUploading ?
-      'text-gray-400 bg-gray-300 cursor-not-allowed font-medium rounded-lg text-sm px-4 py-2 text-center whitespace-nowrap' :
-      'text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 whitespace-nowrap'">
+      'text-gray-400 bg-gray-300 cursor-not-allowed font-medium rounded-lg text-xs sm:text-sm px-3 sm:px-4 py-2 text-center whitespace-nowrap' :
+      'text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs sm:text-sm px-3 sm:px-4 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 whitespace-nowrap'">
     {{ isUploading ? 'Uploading...' : 'Upload' }}
   </button>
-
 </div>
