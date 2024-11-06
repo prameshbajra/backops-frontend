@@ -1,4 +1,4 @@
-<div class="object-container flex justify-center items-center gap-2 flex-wrap py-20">
+<div class="object-container flex justify-center items-center gap-2 flex-wrap py-20" (click)="onObjectAreaClick($event)">
   @if(files.length === 0){
     <div class="w-full text-center py-16 sm:py-20">
       <div class="text-gray-500 text-base sm:text-lg">

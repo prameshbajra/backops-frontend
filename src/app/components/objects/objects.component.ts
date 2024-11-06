@@ -61,6 +61,15 @@ export class ObjectsComponent {
     return this.files.filter(file => file.isSelected).length;
   }
 
+  onObjectAreaClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    console.log(target.tagName);
+    if (target.tagName.includes('INPUT') || target.tagName.includes('IMG')) {
+      return;
+    }
+    this.files.forEach(file => file.isSelected = false);
+  }
+
   deleteSelectedFiles() {
     const selectedFiles = this.files.filter(file => file.isSelected);
     this.fileUploadService.deleteFiles(selectedFiles).subscribe({
@@ -83,6 +92,7 @@ export class ObjectsComponent {
             window.open(url, "_blank");
           }, index * 500);
         });
+        this.files.forEach(file => file.isSelected = false);
       },
       error: (error) => {
         console.error(error);
