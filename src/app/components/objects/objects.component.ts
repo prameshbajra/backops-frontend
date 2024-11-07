@@ -38,7 +38,7 @@ import moment from 'moment';
 export class ObjectsComponent {
 
   files: FileItem[] = [];
-  groupedFiles: { [key: string]: FileItem[] } = {};
+  groupedFiles: { key: string; files: FileItem[] }[] = [];
   shouldUpdateObjectListSubscription!: Subscription;
 
   constructor(
@@ -61,7 +61,7 @@ export class ObjectsComponent {
   }
 
   groupFiles() {
-    this.groupedFiles = this.files.reduce((groups: { [key: string]: FileItem[] }, file: FileItem) => {
+    const grouped = this.files.reduce((groups: { [key: string]: FileItem[] }, file: FileItem) => {
       const date = moment(file.SK).format('YYYY-MM-DD');
       if (!groups[date]) {
         groups[date] = [];
@@ -69,7 +69,9 @@ export class ObjectsComponent {
       groups[date].push(file);
       return groups;
     }, {});
-    console.log(this.groupedFiles);
+    this.groupedFiles = Object.keys(grouped)
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+      .map(key => ({ key, files: grouped[key] }));
   }
 
   getSelectedFilesCount(): number {
