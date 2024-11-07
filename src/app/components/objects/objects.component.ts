@@ -9,6 +9,8 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { MatIconModule } from '@angular/material/icon';
 import { FileService } from '../../services/file.service';
 
+import moment from 'moment';
+
 @Component({
   selector: 'app-objects',
   standalone: true,
@@ -36,6 +38,7 @@ import { FileService } from '../../services/file.service';
 export class ObjectsComponent {
 
   files: FileItem[] = [];
+  groupedFiles: { [key: string]: FileItem[] } = {};
   shouldUpdateObjectListSubscription!: Subscription;
 
   constructor(
@@ -55,6 +58,18 @@ export class ObjectsComponent {
 
   get slideState() {
     return this.getSelectedFilesCount() > 0 ? 'in' : 'out';
+  }
+
+  groupFiles() {
+    this.groupedFiles = this.files.reduce((groups: { [key: string]: FileItem[] }, file: FileItem) => {
+      const date = moment(file.SK).format('YYYY-MM-DD');
+      if (!groups[date]) {
+        groups[date] = [];
+      }
+      groups[date].push(file);
+      return groups;
+    }, {});
+    console.log(this.groupedFiles);
   }
 
   getSelectedFilesCount(): number {
@@ -112,7 +127,7 @@ export class ObjectsComponent {
               file.fileUrl = signedUrls[file.fileName];
               file.isSelected = false;
             });
-            console.log(this.files);
+            this.groupFiles();
           },
           error: (error) => {
             console.error(error);
