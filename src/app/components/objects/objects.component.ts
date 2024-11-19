@@ -17,7 +17,6 @@ import moment from 'moment';
   imports: [
     CommonModule,
     MatIconModule,
-    FileSizePipe
   ],
   templateUrl: 'objects.component.html',
   styleUrl: './objects.component.css',
