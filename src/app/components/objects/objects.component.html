@@ -25,6 +25,13 @@
     </div>
   </div>
   }
+
+  @if(this.nextPaginationToken === null && this.files.length > 0 && !this.areImagesLoading) {
+    <div class="w-100 flex justify-center items-center my-20">
+      <h3 class="text-gray-500 text-base sm:text-lg">Woop! That's all 😁</h3>
+    </div>
+  }
+  <app-loader *ngIf="areImagesLoading"></app-loader>
 </div>
 
 

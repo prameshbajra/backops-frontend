@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { FileItem } from '../../models/FileItem';
-import { FileSizePipe } from '../../pipes/filesize.pipe';
 import { DbService } from '../../services/db.service';
 
 import { animate, state, style, transition, trigger } from '@angular/animations';
@@ -10,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { FileService } from '../../services/file.service';
 
 import moment from 'moment';
+import { LoaderComponent } from '../shared/loader/loader.component';
 
 @Component({
   selector: 'app-objects',
@@ -17,6 +17,8 @@ import moment from 'moment';
   imports: [
     CommonModule,
     MatIconModule,
+
+    LoaderComponent
   ],
   templateUrl: 'objects.component.html',
   styleUrl: './objects.component.css',
@@ -40,6 +42,7 @@ export class ObjectsComponent {
   groupedFiles: { key: string; files: FileItem[] }[] = [];
   shouldUpdateObjectListSubscription!: Subscription;
   nextPaginationToken: string | null = null;
+  areImagesLoading: boolean = false;
 
   @HostListener('window:scroll', [])
   onWindowScroll(): void {
@@ -48,6 +51,7 @@ export class ObjectsComponent {
 
     if (scrollPosition >= windowHeight) {
       console.log('Scrolled to the bottom of the page!');
+      this.areImagesLoading = true;
       this.load();
     }
   }
@@ -130,6 +134,7 @@ export class ObjectsComponent {
   load(): void {
     if (this.nextPaginationToken === null && this.files.length > 0) {
       console.log('All data is loaded');
+      this.areImagesLoading = false;
       return;
     }
 
@@ -150,15 +155,18 @@ export class ObjectsComponent {
                 file.isSelected = false;
               });
               this.groupFiles();
+              this.areImagesLoading = false;
             },
             error: (error) => {
               console.error('Error fetching signed URLs:', error);
+              this.areImagesLoading = false;
             }
           });
         }
       },
       error: (error) => {
         console.error('Error loading files:', error);
+        this.areImagesLoading = false;
       }
     });
   }
