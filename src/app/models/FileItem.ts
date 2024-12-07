@@ -1,5 +1,6 @@
 export interface GetObjectListResponse {
   items: FileItem[];
+  nextToken: string;
 }
 
 

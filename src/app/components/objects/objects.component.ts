@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { FileItem } from '../../models/FileItem';
 import { FileSizePipe } from '../../pipes/filesize.pipe';
@@ -39,6 +39,18 @@ export class ObjectsComponent {
   files: FileItem[] = [];
   groupedFiles: { key: string; files: FileItem[] }[] = [];
   shouldUpdateObjectListSubscription!: Subscription;
+  nextPaginationToken: string | null = null;
+
+  @HostListener('window:scroll', [])
+  onWindowScroll(): void {
+    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+
+    if (scrollPosition >= windowHeight) {
+      console.log('Scrolled to the bottom of the page!');
+      this.load();
+    }
+  }
 
   constructor(
     private fileUploadService: FileService,
@@ -115,28 +127,38 @@ export class ObjectsComponent {
     });
   }
 
-  load() {
-    this.dbService.getObjectList('2024-11').subscribe({
+  load(): void {
+    if (this.nextPaginationToken === null && this.files.length > 0) {
+      console.log('All data is loaded');
+      return;
+    }
+
+    this.dbService.getObjectList(this.nextPaginationToken).subscribe({
       next: (data) => {
-        this.files = data.items;
-        const fileNames = this.files.map((file) => file.fileName);
-        if (fileNames.length === 0) return;
-        this.fileUploadService.downloadFiles(true, fileNames).subscribe({
-          next: (data) => {
-            const signedUrls = data.signedUrls;
-            this.files.forEach((file) => {
-              file.fileUrl = signedUrls[file.fileName];
-              file.isSelected = false;
-            });
-            this.groupFiles();
-          },
-          error: (error) => {
-            console.error(error);
-          }
-        });
+        this.files = [...this.files, ...data.items];
+        this.nextPaginationToken = data.nextToken;
+        // Fetch signed URLs for new files
+        const fileNames = data.items.map((file) => file.fileName);
+        if (fileNames.length > 0) {
+          this.fileUploadService.downloadFiles(true, fileNames).subscribe({
+            next: (response) => {
+              const signedUrls = response.signedUrls;
+              this.files.forEach((file) => {
+                if (signedUrls[file.fileName]) {
+                  file.fileUrl = signedUrls[file.fileName];
+                }
+                file.isSelected = false;
+              });
+              this.groupFiles();
+            },
+            error: (error) => {
+              console.error('Error fetching signed URLs:', error);
+            }
+          });
+        }
       },
       error: (error) => {
-        console.error(error);
+        console.error('Error loading files:', error);
       }
     });
   }
