@@ -11,6 +11,7 @@
         [ngClass]="{ 'opacity-100': file.isSelected, 'opacity-0': !file.isSelected }">
         ✔
       </span>
+      {{file | json}}
       <img (click)="selectObject(file)" class="w-full h-full object-cover rounded-lg transition-transform" [ngClass]="{ 'scale-95': file.isSelected }"
         [src]="file.fileUrl" alt="" />
     </div>

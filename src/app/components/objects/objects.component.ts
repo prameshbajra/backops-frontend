@@ -10,6 +10,7 @@ import { FileService } from '../../services/file.service';
 
 import moment from 'moment';
 import { LoaderComponent } from '../shared/loader/loader.component';
+import { Utility } from '../../utility';
 
 @Component({
   selector: 'app-objects',
@@ -143,14 +144,15 @@ export class ObjectsComponent {
         this.files = [...this.files, ...data.items];
         this.nextPaginationToken = data.nextToken;
         // Fetch signed URLs for new files
-        const fileNames = data.items.map((file) => file.fileName);
+        const fileNames = data.items.map((file) => Utility.checkFilenameReplaceExtension(file.fileName));
         if (fileNames.length > 0) {
           this.fileUploadService.downloadFiles(true, fileNames).subscribe({
             next: (response) => {
               const signedUrls = response.signedUrls;
               this.files.forEach((file) => {
-                if (signedUrls[file.fileName]) {
-                  file.fileUrl = signedUrls[file.fileName];
+                const fileName = Utility.checkFilenameReplaceExtension(file.fileName);
+                if (signedUrls[fileName]) {
+                  file.fileUrl = signedUrls[fileName];
                 }
                 file.isSelected = false;
               });
