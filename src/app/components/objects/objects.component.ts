@@ -50,7 +50,7 @@ export class ObjectsComponent {
     const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
     const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
 
-    if (scrollPosition >= windowHeight) {
+    if (scrollPosition >= windowHeight && !this.areImagesLoading) {
       console.log('Scrolled to the bottom of the page!');
       this.areImagesLoading = true;
       this.load();
