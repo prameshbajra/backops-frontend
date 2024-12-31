@@ -10,6 +10,7 @@ import { FileService } from '../../services/file.service';
 
 import moment from 'moment';
 import { LoaderComponent } from '../shared/loader/loader.component';
+import { ObjectFabComponent } from './object-fab/object-fab.component';
 import { Utility } from '../../utility';
 
 @Component({
@@ -18,8 +19,8 @@ import { Utility } from '../../utility';
   imports: [
     CommonModule,
     MatIconModule,
-
-    LoaderComponent
+    LoaderComponent,
+    ObjectFabComponent
   ],
   templateUrl: 'objects.component.html',
   styleUrl: './objects.component.css',
@@ -139,7 +140,7 @@ export class ObjectsComponent {
       return;
     }
 
-    this.dbService.getObjectList(this.nextPaginationToken).subscribe({
+    this.dbService.getObjectList(this.nextPaginationToken, '2024-12').subscribe({
       next: (data) => {
         this.files = [...this.files, ...data.items];
         this.nextPaginationToken = data.nextToken;

@@ -18,7 +18,8 @@ export function responseInterceptor(req: HttpRequest<unknown>, next: HttpHandler
       }
     }),
     catchError((error: HttpErrorResponse) => {
-      console.error('API failed. Loggin out and clearing all client data. User will need to login again.', error);
+      console.error(error);
+      // console.error('API failed. Loggin out and clearing all client data. User will need to login again.', error);
       // localStorage.removeItem('accessToken');
       // localStorage.removeItem('refreshToken');
       // localStorage.removeItem('idToken');

@@ -1,3 +1,4 @@
+
 <div class="px-10 py-16">
   @for (group of groupedFiles; track group.key) {
   <h2 class="text-xl pt-8 pb-4 dark:text-gray-400">{{ group.key | date:'longDate' }}</h2>
@@ -34,6 +35,7 @@
   <app-loader *ngIf="areImagesLoading"></app-loader>
 </div>
 
+<app-object-fab></app-object-fab>
 
 
 <div [@slideInOut]="slideState" class="z-20 fixed bottom-0 left-0 right-0 bg-gray-100 p-4 flex justify-center gap-4 dark:bg-gray-950">

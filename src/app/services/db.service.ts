@@ -11,8 +11,8 @@ export class DbService {
 
   constructor(private http: HttpClient) { }
 
-  getObjectList(nextToken: string | null): Observable<GetObjectListResponse> {
+  getObjectList(nextToken: string | null, timestampPrefix: string | null): Observable<GetObjectListResponse> {
     const url = `${environment.AUTH_API_URL}objects`;
-    return this.http.post<GetObjectListResponse>(url, { nextToken });
+    return this.http.post<GetObjectListResponse>(url, { nextToken, timestampPrefix });
   }
 }
