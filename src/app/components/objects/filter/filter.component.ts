@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { Utility } from '../../../utility';
 import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { DbService } from '../../../services/db.service';
+import { Utility } from '../../../utility';
 
 @Component({
   selector: 'app-filter',
@@ -11,13 +12,22 @@ import { CommonModule } from '@angular/common';
 })
 export class FilterComponent {
 
-
   months: string[] = Utility.getMonths();
   years: number[] = Utility.getYears();
 
-  selectedMonthIndex: number | undefined;
-  selectedYear: number | undefined;
+  selectedMonthIndex!: number;
+  selectedYear!: number;
 
+  dbService: DbService = inject(DbService);
+
+  ngOnInit(): void {
+    const timestampPrefix = this.dbService.getTimeStampPrefix();
+    if (timestampPrefix) {
+      const [year, month] = timestampPrefix.split('-');
+      this.selectedYear = parseInt(year);
+      this.selectedMonthIndex = parseInt(month) - 1;
+    }
+  }
 
   selectMonth(index: number): void {
     this.selectedMonthIndex = index;
@@ -27,8 +37,14 @@ export class FilterComponent {
     this.selectedYear = year;
   }
 
+  onClear(): void {
+    this.dbService.setApplyFilterObjectList(null);
+  }
+
   onApply(): void {
-    console.log('Apply filter', this.selectedMonthIndex ? this.selectedMonthIndex + 1 : '', this.selectedYear);
+    const formattedMonth = (this.selectedMonthIndex + 1).toString().padStart(2, '0');
+    const timestampPrefix = `${this.selectedYear}-${formattedMonth}`;
+    this.dbService.setApplyFilterObjectList(timestampPrefix);
   }
 
 }

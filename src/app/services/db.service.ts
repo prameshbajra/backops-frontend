@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { GetObjectListResponse } from '../models/FileItem';
 
@@ -9,7 +9,22 @@ import { GetObjectListResponse } from '../models/FileItem';
 })
 export class DbService {
 
-  constructor(private http: HttpClient) { }
+  http: HttpClient = inject(HttpClient);
+  timestampPrefixSub: Subject<string | null> = new Subject<string | null>();
+  timeStampPrefix: string | null = null;
+
+  getTimeStampPrefix(): string | null {
+    return this.timeStampPrefix;
+  }
+
+  getApplyFilterObjectList(): Observable<string | null> {
+    return this.timestampPrefixSub.asObservable();
+  }
+
+  setApplyFilterObjectList(value: string | null) {
+    this.timeStampPrefix = value;
+    this.timestampPrefixSub.next(value);
+  }
 
   getObjectList(nextToken: string | null, timestampPrefix: string | null): Observable<GetObjectListResponse> {
     const url = `${environment.AUTH_API_URL}objects`;

@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
+import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatButtonModule } from '@angular/material/button';
-import { MatBottomSheetModule, MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatIconModule } from '@angular/material/icon';
 import { FilterComponent } from '../filter/filter.component';
 
 @Component({

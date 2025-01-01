@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { FileItem } from '../models/FileItem';
@@ -9,9 +9,8 @@ import { FileItem } from '../models/FileItem';
 })
 export class FileService {
 
+  http: HttpClient = inject(HttpClient);
   shouldUpdateObjectList: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
-
-  constructor(private http: HttpClient) { }
 
   getShouldUpdateObjectList(): Observable<boolean> {
     return this.shouldUpdateObjectList.asObservable();

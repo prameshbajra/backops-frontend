@@ -1,16 +1,14 @@
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { from, mergeMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthService } from '../../services/auth.service';
 import { FileService } from '../../services/file.service';
-import { LogoutComponent } from "../logout/logout.component";
 
 @Component({
   selector: 'app-file-upload',
   standalone: true,
-  imports: [CommonModule, LogoutComponent],
+  imports: [CommonModule],
   templateUrl: './file-upload.component.html',
   styleUrl: './file-upload.component.css',
   animations: [
@@ -34,16 +32,13 @@ import { LogoutComponent } from "../logout/logout.component";
     ])
   ]
 })
-export class FileUploadComponent implements OnInit {
+export class FileUploadComponent {
 
   totalFiles: number = 0;
   completedFiles: number = 0;
   isUploading: boolean = false;
 
-  constructor(private fileUploadService: FileService, private authService: AuthService) { }
-
-  ngOnInit() {
-  }
+  fileUploadService: FileService = inject(FileService);
 
   async onFileSelected(event: any) {
     const files: File[] = event.target.files;

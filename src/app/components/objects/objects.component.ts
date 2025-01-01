@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { FileItem } from '../../models/FileItem';
 import { DbService } from '../../services/db.service';
@@ -9,9 +9,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { FileService } from '../../services/file.service';
 
 import moment from 'moment';
+import { Utility } from '../../utility';
 import { LoaderComponent } from '../shared/loader/loader.component';
 import { ObjectFabComponent } from './object-fab/object-fab.component';
-import { Utility } from '../../utility';
 
 @Component({
   selector: 'app-objects',
@@ -40,11 +40,16 @@ import { Utility } from '../../utility';
 })
 export class ObjectsComponent {
 
+  fileUploadService: FileService = inject(FileService);
+  dbService: DbService = inject(DbService);
+  applyFilterObjectListSubscription!: Subscription;
+  shouldUpdateObjectListSubscription!: Subscription;
+
   files: FileItem[] = [];
   groupedFiles: { key: string; files: FileItem[] }[] = [];
-  shouldUpdateObjectListSubscription!: Subscription;
   nextPaginationToken: string | null = null;
   areImagesLoading: boolean = false;
+  timestampFilterData: string | null = null;
 
   @HostListener('window:scroll', [])
   onWindowScroll(): void {
@@ -58,17 +63,20 @@ export class ObjectsComponent {
     }
   }
 
-  constructor(
-    private fileUploadService: FileService,
-    private dbService: DbService
-  ) { }
-
   ngOnInit() {
     this.shouldUpdateObjectListSubscription = this.fileUploadService.getShouldUpdateObjectList().subscribe({
       next: (value) => {
         if (value) {
           this.load();
         }
+      }
+    });
+    this.applyFilterObjectListSubscription = this.dbService.getApplyFilterObjectList().subscribe({
+      next: (value: string | null) => {
+        this.files = [];
+        this.nextPaginationToken = null;
+        this.timestampFilterData = value;
+        this.load();
       }
     });
   }
@@ -140,7 +148,7 @@ export class ObjectsComponent {
       return;
     }
 
-    this.dbService.getObjectList(this.nextPaginationToken, '2024-12').subscribe({
+    this.dbService.getObjectList(this.nextPaginationToken, this.timestampFilterData).subscribe({
       next: (data) => {
         this.files = [...this.files, ...data.items];
         this.nextPaginationToken = data.nextToken;
@@ -190,5 +198,6 @@ export class ObjectsComponent {
 
   ngOnDestroy() {
     this.shouldUpdateObjectListSubscription?.unsubscribe();
+    this.applyFilterObjectListSubscription?.unsubscribe();
   }
 }

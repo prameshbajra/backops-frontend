@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SignInResponse } from '../../models/SignInResponse';
@@ -14,20 +14,17 @@ import { AuthService } from '../../services/auth.service';
 })
 export class LoginComponent implements OnInit {
 
-  loginForm: FormGroup;
+  loginForm!: FormGroup;
 
-  constructor(
-    private authService: AuthService,
-    private formBuilder: FormBuilder,
-    private router: Router
-  ) {
+  authService: AuthService = inject(AuthService);
+  formBuilder: FormBuilder = inject(FormBuilder);
+  router: Router = inject(Router);
+
+  ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
       username: ['', Validators.required],
       password: ['', Validators.required]
     });
-  }
-
-  ngOnInit(): void {
     this.checkCurrentUser();
   }
 

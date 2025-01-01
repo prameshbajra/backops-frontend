@@ -10,10 +10,5 @@ import { CommonModule } from '@angular/common';
   styleUrl: './top-menu.component.css'
 })
 export class TopMenuComponent {
-  constructor() { }
-
-  uploadClick() {
-
-  }
 
 }

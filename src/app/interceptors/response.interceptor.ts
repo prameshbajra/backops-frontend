@@ -24,7 +24,7 @@ export function responseInterceptor(req: HttpRequest<unknown>, next: HttpHandler
       // localStorage.removeItem('refreshToken');
       // localStorage.removeItem('idToken');
       // authService.currentUser.set(null);
-      router.navigate(['/login']);
+      // router.navigate(['/login']);
       throw error;
     })
   );
