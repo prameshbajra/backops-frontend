@@ -12,19 +12,3 @@ body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
-
-.mat-bottom-sheet-container {
-  padding: 0 !important;
-  position: fixed !important;
-  bottom: 0 !important;
-  left: 0;
-  width: 100% !important;
-  max-height: 90vh;
-  overflow-y: auto;
-  z-index: 1000;
-  background: white !important;
-}
-
-.mat-bottom-sheet-container-large {
-  max-width: none !important;
-}

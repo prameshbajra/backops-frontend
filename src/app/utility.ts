@@ -16,4 +16,21 @@ export class Utility {
       : filename;
     return `${baseName}.jpg`;
   }
+
+  static getMonths(): string[] {
+    return [
+      'January', 'February', 'March', 'April', 'May', 'June', 'July',
+      'August', 'September', 'October', 'November', 'December'
+    ];
+  }
+
+  static getYears(): number[] {
+    const startYear = 2023;
+    const currentYear = new Date().getFullYear();
+    let years: number[] = [];
+    for (let year = startYear; year <= currentYear; year++) {
+      years.push(year);
+    }
+    return years;
+  }
 }

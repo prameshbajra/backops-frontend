@@ -1,0 +1,34 @@
+<div class="h-80">
+  <h3 class="my-4 text-lg font-bold">Select the month and the year</h3>
+
+  <div class="flex justify-center h-52">
+    <!-- Months List -->
+    <ul class="w-48 text-sm text-gray-900 bg-white border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white overflow-scroll">
+      @for (month of months; track $index) {
+      <li class="w-full px-4 py-2 cursor-pointer border-b border-gray-200 dark:border-gray-600"
+        [ngClass]="{'bg-blue-500 text-white': selectedMonthIndex === $index, 'hover:bg-gray-100 dark:hover:bg-gray-600': selectedMonthIndex !== $index}"
+        (click)="selectMonth($index)">
+        {{ month }}
+      </li>
+      }
+    </ul>
+
+    <!-- Years List -->
+    <ul class="w-48 text-sm text-gray-900 bg-white border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+      @for (year of years; track $index) {
+      <li class="w-full px-4 py-2 cursor-pointer border-b border-gray-200 dark:border-gray-600"
+        [ngClass]="{'bg-blue-500 text-white': selectedYear === year, 'hover:bg-gray-100 dark:hover:bg-gray-600': selectedYear !== year}"
+        (click)="selectYear(year)">
+        {{ year }}
+      </li>
+      }
+    </ul>
+  </div>
+
+  <div class="flex justify-end my-5">
+    <button type="button" (click)="onApply()"
+      class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+      Apply
+    </button>
+  </div>
+</div>
