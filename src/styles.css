@@ -12,3 +12,9 @@ body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
+
+@media (prefers-color-scheme: dark) {
+  .mat-bottom-sheet-container {
+    background: #374151 !important;
+  }
+}
