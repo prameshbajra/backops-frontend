@@ -4,14 +4,13 @@ import { ObjectsComponent } from '../objects/objects.component';
 import { TopMenuComponent } from '../top-menu/top-menu.component';
 
 @Component({
-  selector: 'app-home',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ObjectsComponent,
-    TopMenuComponent
-  ],
-  templateUrl: 'home.component.html',
-  styleUrl: './home.component.css',
+    selector: 'app-home',
+    imports: [
+        CommonModule,
+        ObjectsComponent,
+        TopMenuComponent
+    ],
+    templateUrl: 'home.component.html',
+    styleUrl: './home.component.css'
 })
 export class HomeComponent { }

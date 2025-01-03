@@ -14,29 +14,28 @@ import { LoaderComponent } from '../shared/loader/loader.component';
 import { ObjectFabComponent } from './object-fab/object-fab.component';
 
 @Component({
-  selector: 'app-objects',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatIconModule,
-    LoaderComponent,
-    ObjectFabComponent
-  ],
-  templateUrl: 'objects.component.html',
-  styleUrl: './objects.component.css',
-  animations: [
-    trigger('slideInOut', [
-      state('in', style({ transform: 'translateY(0)' })),
-      state('out', style({ transform: 'translateY(100%)' })),
-      transition('out => in', [
-        style({ transform: 'translateY(100%)' }),
-        animate('300ms ease-in-out')
-      ]),
-      transition('in => out', [
-        animate('300ms ease-in-out', style({ transform: 'translateY(100%)' }))
-      ])
-    ])
-  ]
+    selector: 'app-objects',
+    imports: [
+        CommonModule,
+        MatIconModule,
+        LoaderComponent,
+        ObjectFabComponent
+    ],
+    templateUrl: 'objects.component.html',
+    styleUrl: './objects.component.css',
+    animations: [
+        trigger('slideInOut', [
+            state('in', style({ transform: 'translateY(0)' })),
+            state('out', style({ transform: 'translateY(100%)' })),
+            transition('out => in', [
+                style({ transform: 'translateY(100%)' }),
+                animate('300ms ease-in-out')
+            ]),
+            transition('in => out', [
+                animate('300ms ease-in-out', style({ transform: 'translateY(100%)' }))
+            ])
+        ])
+    ]
 })
 export class ObjectsComponent {
 

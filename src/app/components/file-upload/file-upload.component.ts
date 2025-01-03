@@ -6,31 +6,30 @@ import { environment } from '../../../environments/environment';
 import { FileService } from '../../services/file.service';
 
 @Component({
-  selector: 'app-file-upload',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './file-upload.component.html',
-  styleUrl: './file-upload.component.css',
-  animations: [
-    trigger('slideButton', [
-      transition(':enter', [
-        style({ transform: 'translateX(100%)', opacity: 0 }),
-        animate('300ms ease-out', style({ transform: 'translateX(0)', opacity: 1 }))
-      ]),
-      transition(':leave', [
-        animate('300ms ease-in', style({ transform: 'translateX(100%)', opacity: 0 }))
-      ])
-    ]),
-    trigger('slideUpload', [
-      transition(':enter', [
-        style({ transform: 'translateX(-100%)', opacity: 0 }),
-        animate('300ms ease-out', style({ transform: 'translateX(0)', opacity: 1 }))
-      ]),
-      transition(':leave', [
-        animate('300ms ease-in', style({ transform: 'translateX(-100%)', opacity: 0 }))
-      ])
-    ])
-  ]
+    selector: 'app-file-upload',
+    imports: [CommonModule],
+    templateUrl: './file-upload.component.html',
+    styleUrl: './file-upload.component.css',
+    animations: [
+        trigger('slideButton', [
+            transition(':enter', [
+                style({ transform: 'translateX(100%)', opacity: 0 }),
+                animate('300ms ease-out', style({ transform: 'translateX(0)', opacity: 1 }))
+            ]),
+            transition(':leave', [
+                animate('300ms ease-in', style({ transform: 'translateX(100%)', opacity: 0 }))
+            ])
+        ]),
+        trigger('slideUpload', [
+            transition(':enter', [
+                style({ transform: 'translateX(-100%)', opacity: 0 }),
+                animate('300ms ease-out', style({ transform: 'translateX(0)', opacity: 1 }))
+            ]),
+            transition(':leave', [
+                animate('300ms ease-in', style({ transform: 'translateX(-100%)', opacity: 0 }))
+            ])
+        ])
+    ]
 })
 export class FileUploadComponent {
 

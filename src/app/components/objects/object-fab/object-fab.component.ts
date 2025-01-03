@@ -5,15 +5,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { FilterComponent } from '../filter/filter.component';
 
 @Component({
-  selector: 'app-object-fab',
-  standalone: true,
-  imports: [
-    MatIconModule,
-    MatButtonModule,
-    MatBottomSheetModule
-  ],
-  templateUrl: './object-fab.component.html',
-  styleUrl: './object-fab.component.css'
+    selector: 'app-object-fab',
+    imports: [
+        MatIconModule,
+        MatButtonModule,
+        MatBottomSheetModule
+    ],
+    templateUrl: './object-fab.component.html',
+    styleUrl: './object-fab.component.css'
 })
 export class ObjectFabComponent {
 

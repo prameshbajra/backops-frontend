@@ -4,11 +4,10 @@ import { DbService } from '../../../services/db.service';
 import { Utility } from '../../../utility';
 
 @Component({
-  selector: 'app-filter',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './filter.component.html',
-  styleUrl: './filter.component.css'
+    selector: 'app-filter',
+    imports: [CommonModule],
+    templateUrl: './filter.component.html',
+    styleUrl: './filter.component.css'
 })
 export class FilterComponent {
 
