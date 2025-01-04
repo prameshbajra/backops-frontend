@@ -5,16 +5,12 @@ import { SignInResponse } from '../../models/SignInResponse';
 import { CognitoUserData, User } from '../../models/User';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
-import { LoaderComponent } from '../shared/loader/loader.component';
 
 @Component({
-  selector: 'app-login',
-  imports: [
-    ReactiveFormsModule, CommonModule,
-    LoaderComponent
-  ],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+    selector: 'app-login',
+  imports: [ReactiveFormsModule, CommonModule],
+    templateUrl: './login.component.html',
+    styleUrl: './login.component.css'
 })
 export class LoginComponent implements OnInit {
 
@@ -34,13 +30,12 @@ export class LoginComponent implements OnInit {
   }
 
   private checkCurrentUser(): void {
-    this.isLoading = true;
     const currentUser = this.authService.currentUser();
 
     if (!currentUser) {
       this.authService.getCurrentUser().subscribe({
         next: (cognitoUser: CognitoUserData) => this.handleUserLoginSuccess(cognitoUser),
-        error: (error) => this.handleLoginError(error)
+        error: (error) => console.error('Error getting current user:', error)
       });
     }
   }
@@ -83,11 +78,6 @@ export class LoginComponent implements OnInit {
 
   private handleLoginError(error: any): void {
     try {
-      this.isLoading = false;
-      if (error.error.message === 'Unauthorized') {
-        console.error('Unauthorized. User not logged in.');
-        return;
-      }
       if (error.error.error.name === 'UserNotFoundException') {
         alert('Wrong username or password');
       } else {
@@ -95,6 +85,8 @@ export class LoginComponent implements OnInit {
       }
     } catch (error) {
       console.error('Error logging in:', error);
+      alert('An error occurred. Please try again.');
     }
+    this.isLoading = false;
   }
 }
