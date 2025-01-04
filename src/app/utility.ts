@@ -7,10 +7,6 @@ export class Utility {
   }
 
   static checkFilenameReplaceExtension(filename: string): string {
-    const extension = filename.split('.').pop()?.toLowerCase() ?? '';
-    if (['jpeg', 'jpg', 'png'].includes(extension)) {
-      return filename;
-    }
     const baseName = filename.includes('.')
       ? filename.substring(0, filename.lastIndexOf('.'))
       : filename;
