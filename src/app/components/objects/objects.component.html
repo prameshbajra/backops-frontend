@@ -17,13 +17,16 @@
     }
   </div>
   } @empty {
-  <div class="w-full text-center py-16 sm:py-20">
-    <div class="text-gray-500 text-base sm:text-lg">
-      <mat-icon class="text-3xl mb-3 text-gray-300">folder_off</mat-icon>
-      <p>No files available</p>
-      <p class="text-sm text-gray-400">Upload some files to get started.</p>
-    </div>
-  </div>
+    @if(nextPaginationToken === null && files.length === 0 && !areImagesLoading) {
+      <div class="w-full text-center py-16 sm:py-20">
+        <div class="text-gray-500 text-base sm:text-lg">
+          <mat-icon class="text-3xl mb-3 text-gray-300">folder_off</mat-icon>
+          <p>No files here 📂</p>
+        </div>
+      </div>
+    } @else {
+      <app-loader></app-loader>
+    }
   }
 
   @if(nextPaginationToken === null && files.length > 0 && !areImagesLoading) {

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { DbService } from '../../../services/db.service';
 import { Utility } from '../../../utility';
+import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 
 @Component({
     selector: 'app-filter',
@@ -10,6 +11,7 @@ import { Utility } from '../../../utility';
     styleUrl: './filter.component.css'
 })
 export class FilterComponent {
+  dbService: DbService = inject(DbService);
 
   months: string[] = Utility.getMonths();
   years: number[] = Utility.getYears();
@@ -17,7 +19,8 @@ export class FilterComponent {
   selectedMonthIndex!: number;
   selectedYear!: number;
 
-  dbService: DbService = inject(DbService);
+  bottomSheetRef =
+    inject<MatBottomSheetRef<FilterComponent>>(MatBottomSheetRef);
 
   ngOnInit(): void {
     const timestampPrefix = this.dbService.getTimeStampPrefix();
@@ -38,12 +41,14 @@ export class FilterComponent {
 
   onClear(): void {
     this.dbService.setApplyFilterObjectList(null);
+    this.bottomSheetRef.dismiss();
   }
 
   onApply(): void {
     const formattedMonth = (this.selectedMonthIndex + 1).toString().padStart(2, '0');
     const timestampPrefix = `${this.selectedYear}-${formattedMonth}`;
     this.dbService.setApplyFilterObjectList(timestampPrefix);
+    this.bottomSheetRef.dismiss();
   }
 
 }

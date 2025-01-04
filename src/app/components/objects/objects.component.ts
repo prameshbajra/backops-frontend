@@ -12,6 +12,7 @@ import moment from 'moment';
 import { Utility } from '../../utility';
 import { LoaderComponent } from '../shared/loader/loader.component';
 import { ObjectFabComponent } from './object-fab/object-fab.component';
+import { ChangeDetectionStrategy } from '@angular/compiler';
 
 @Component({
     selector: 'app-objects',
@@ -172,6 +173,9 @@ export class ObjectsComponent {
               this.areImagesLoading = false;
             }
           });
+        } else {
+          this.groupFiles();
+          this.areImagesLoading = false;
         }
       },
       error: (error) => {
