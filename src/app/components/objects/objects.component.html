@@ -1,3 +1,8 @@
+@if(nextPaginationToken === null && files.length === 0) {
+<div class="flex justify-center items-center h-screen">
+  <app-loader></app-loader>
+</div>
+} @else {
 <div class="px-10 py-16">
   @for (group of groupedFiles; track group.key) {
   <h2 class="text-xl pt-8 pb-4 dark:text-gray-400">{{ group.key | date:'longDate' }}</h2>
@@ -17,6 +22,7 @@
     }
   </div>
   } @empty {
+  @if(nextPaginationToken === null) {
   <div class="w-full text-center py-16 sm:py-20">
     <div class="text-gray-500 text-base sm:text-lg">
       <mat-icon class="text-3xl mb-3 text-gray-300">folder_off</mat-icon>
@@ -24,6 +30,9 @@
       <p class="text-sm text-gray-400">Upload some files to get started.</p>
     </div>
   </div>
+  } @else {
+  <app-loader></app-loader>
+  }
   }
 
   @if(nextPaginationToken === null && files.length > 0 && !areImagesLoading) {
@@ -38,6 +47,7 @@
 </div>
 
 <app-object-fab></app-object-fab>
+}
 
 
 <div [@slideInOut]="slideState" class="z-20 fixed bottom-0 left-0 right-0 bg-gray-100 p-4 flex justify-center gap-4 dark:bg-gray-950">
