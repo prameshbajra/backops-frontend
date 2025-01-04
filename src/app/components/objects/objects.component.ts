@@ -12,7 +12,6 @@ import moment from 'moment';
 import { Utility } from '../../utility';
 import { LoaderComponent } from '../shared/loader/loader.component';
 import { ObjectFabComponent } from './object-fab/object-fab.component';
-import { ChangeDetectionStrategy } from '@angular/compiler';
 
 @Component({
     selector: 'app-objects',
@@ -42,6 +41,7 @@ export class ObjectsComponent {
 
   fileUploadService: FileService = inject(FileService);
   dbService: DbService = inject(DbService);
+
   applyFilterObjectListSubscription!: Subscription;
   shouldUpdateObjectListSubscription!: Subscription;
 
@@ -58,7 +58,6 @@ export class ObjectsComponent {
 
     if (scrollPosition >= windowHeight && !this.areImagesLoading) {
       console.log('Scrolled to the bottom of the page!');
-      this.areImagesLoading = true;
       this.load();
     }
   }
@@ -67,6 +66,10 @@ export class ObjectsComponent {
     this.shouldUpdateObjectListSubscription = this.fileUploadService.getShouldUpdateObjectList().subscribe({
       next: (value) => {
         if (value) {
+          this.files = [];
+          this.groupFiles();
+          this.nextPaginationToken = null;
+          this.timestampFilterData = null;
           this.load();
         }
       }
@@ -74,6 +77,7 @@ export class ObjectsComponent {
     this.applyFilterObjectListSubscription = this.dbService.getApplyFilterObjectList().subscribe({
       next: (value: string | null) => {
         this.files = [];
+        this.groupFiles();
         this.nextPaginationToken = null;
         this.timestampFilterData = value;
         this.load();
@@ -142,6 +146,7 @@ export class ObjectsComponent {
   }
 
   load(): void {
+    this.areImagesLoading = true;
     if (this.nextPaginationToken === null && this.files.length > 0) {
       console.log('All data is loaded');
       this.areImagesLoading = false;
