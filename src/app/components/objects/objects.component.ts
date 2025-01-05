@@ -48,7 +48,9 @@ export class ObjectsComponent {
   files: FileItem[] = [];
   groupedFiles: { key: string; files: FileItem[] }[] = [];
   nextPaginationToken: string | null = null;
-  areImagesLoading: boolean = false;
+  areFilesLoading: boolean = false;
+  areFilesBeingDeleted: boolean = false;
+  areFilesBeingDownloaded: boolean = false;
   timestampFilterData: string | null = null;
 
   @HostListener('window:scroll', [])
@@ -56,7 +58,7 @@ export class ObjectsComponent {
     const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
     const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
 
-    if (scrollPosition >= windowHeight && !this.areImagesLoading) {
+    if (scrollPosition >= windowHeight && !this.areFilesLoading) {
       console.log('Scrolled to the bottom of the page!');
       this.load();
     }
@@ -116,18 +118,23 @@ export class ObjectsComponent {
   }
 
   deleteSelectedFiles() {
+    this.areFilesBeingDeleted = true;
     const selectedFiles = this.files.filter(file => file.isSelected);
     this.fileUploadService.deleteFiles(selectedFiles).subscribe({
       next: () => {
-        this.load();
+        this.files = this.files.filter(file => !file.isSelected);
+        this.groupFiles();
+        this.areFilesBeingDeleted = false;
       },
       error: (error) => {
         console.error(error);
+        this.areFilesBeingDeleted = false;
       }
     });
   }
 
   downloadSelectedFiles() {
+    this.areFilesBeingDownloaded = true;
     const selectedFiles = this.files.filter(file => file.isSelected).map(file => file.fileName);
     this.fileUploadService.downloadFiles(false, selectedFiles).subscribe({
       next: (data) => {
@@ -138,18 +145,20 @@ export class ObjectsComponent {
           }, index * 500);
         });
         this.files.forEach(file => file.isSelected = false);
+        this.areFilesBeingDownloaded = false;
       },
       error: (error) => {
         console.error(error);
+        this.areFilesBeingDownloaded = false;
       }
     });
   }
 
   load(): void {
-    this.areImagesLoading = true;
+    this.areFilesLoading = true;
     if (this.nextPaginationToken === null && this.files.length > 0) {
       console.log('All data is loaded');
-      this.areImagesLoading = false;
+      this.areFilesLoading = false;
       return;
     }
 
@@ -171,21 +180,21 @@ export class ObjectsComponent {
                 file.isSelected = false;
               });
               this.groupFiles();
-              this.areImagesLoading = false;
+              this.areFilesLoading = false;
             },
             error: (error) => {
               console.error('Error fetching signed URLs:', error);
-              this.areImagesLoading = false;
+              this.areFilesLoading = false;
             }
           });
         } else {
           this.groupFiles();
-          this.areImagesLoading = false;
+          this.areFilesLoading = false;
         }
       },
       error: (error) => {
         console.error('Error loading files:', error);
-        this.areImagesLoading = false;
+        this.areFilesLoading = false;
       }
     });
   }
