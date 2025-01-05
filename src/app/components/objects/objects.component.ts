@@ -5,6 +5,7 @@ import { FileItem } from '../../models/FileItem';
 import { DbService } from '../../services/db.service';
 
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { FileService } from '../../services/file.service';
 
@@ -12,35 +13,38 @@ import moment from 'moment';
 import { Utility } from '../../utility';
 import { LoaderComponent } from '../shared/loader/loader.component';
 import { ObjectFabComponent } from './object-fab/object-fab.component';
+import { Router } from '@angular/router';
 
 @Component({
-    selector: 'app-objects',
-    imports: [
-        CommonModule,
-        MatIconModule,
-        LoaderComponent,
-        ObjectFabComponent
-    ],
-    templateUrl: 'objects.component.html',
-    styleUrl: './objects.component.css',
-    animations: [
-        trigger('slideInOut', [
-            state('in', style({ transform: 'translateY(0)' })),
-            state('out', style({ transform: 'translateY(100%)' })),
-            transition('out => in', [
-                style({ transform: 'translateY(100%)' }),
-                animate('300ms ease-in-out')
-            ]),
-            transition('in => out', [
-                animate('300ms ease-in-out', style({ transform: 'translateY(100%)' }))
-            ])
-        ])
-    ]
+  selector: 'app-objects',
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatDialogModule,
+    LoaderComponent,
+    ObjectFabComponent
+  ],
+  templateUrl: 'objects.component.html',
+  styleUrl: './objects.component.css',
+  animations: [
+    trigger('slideInOut', [
+      state('in', style({ transform: 'translateY(0)' })),
+      state('out', style({ transform: 'translateY(100%)' })),
+      transition('out => in', [
+        style({ transform: 'translateY(100%)' }),
+        animate('300ms ease-in-out')
+      ]),
+      transition('in => out', [
+        animate('300ms ease-in-out', style({ transform: 'translateY(100%)' }))
+      ])
+    ])
+  ]
 })
 export class ObjectsComponent {
 
   fileUploadService: FileService = inject(FileService);
   dbService: DbService = inject(DbService);
+  router: Router = inject(Router);
 
   applyFilterObjectListSubscription!: Subscription;
   shouldUpdateObjectListSubscription!: Subscription;
@@ -52,6 +56,7 @@ export class ObjectsComponent {
   areFilesBeingDeleted: boolean = false;
   areFilesBeingDownloaded: boolean = false;
   timestampFilterData: string | null = null;
+
 
   @HostListener('window:scroll', [])
   onWindowScroll(): void {
@@ -200,13 +205,7 @@ export class ObjectsComponent {
   }
 
   selectObject(file: FileItem): void {
-    this.files.forEach(_ => {
-      if (file.fileName === _.fileName) {
-        file.isSelected = !file.isSelected;
-      } else {
-        _.isSelected = false;
-      }
-    });
+    this.router.navigate(['view'], { state: file });
   }
 
   toggleSelection(file: FileItem) {
@@ -218,3 +217,7 @@ export class ObjectsComponent {
     this.applyFilterObjectListSubscription?.unsubscribe();
   }
 }
+function openDialog(enterAnimationDuration: any, string: any, exitAnimationDuration: any, string1: any) {
+  throw new Error('Function not implemented.');
+}
+
