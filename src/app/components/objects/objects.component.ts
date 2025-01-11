@@ -205,7 +205,7 @@ export class ObjectsComponent {
   }
 
   selectObject(file: FileItem): void {
-    this.router.navigate(['view'], { state: file });
+    this.router.navigate(['view'], { queryParams: { PK: file.PK, SK: file.SK } });
   }
 
   toggleSelection(file: FileItem) {
