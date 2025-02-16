@@ -14,6 +14,8 @@ import { Utility } from '../../utility';
 import { LoaderComponent } from '../shared/loader/loader.component';
 import { ObjectFabComponent } from './object-fab/object-fab.component';
 import { Router } from '@angular/router';
+import { Dialog } from '@angular/cdk/dialog';
+import { ObjectViewerComponent } from './object-viewer/object-viewer.component';
 
 @Component({
   selector: 'app-objects',
@@ -45,6 +47,8 @@ export class ObjectsComponent {
   fileUploadService: FileService = inject(FileService);
   dbService: DbService = inject(DbService);
   router: Router = inject(Router);
+  dialog: Dialog = inject(Dialog);
+
 
   applyFilterObjectListSubscription!: Subscription;
   shouldUpdateObjectListSubscription!: Subscription;
@@ -205,7 +209,11 @@ export class ObjectsComponent {
   }
 
   selectObject(file: FileItem): void {
-    this.router.navigate(['view'], { queryParams: { PK: file.PK, SK: file.SK } });
+    this.dialog.open(ObjectViewerComponent, {
+      minWidth: '100vw',
+      minHeight: '100vh',
+      data: file,
+    });
   }
 
   toggleSelection(file: FileItem) {

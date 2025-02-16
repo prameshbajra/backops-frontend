@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FileService } from '../../../services/file.service';
 import { FileItem, GetObjectResponse } from '../../../models/FileItem';
 import { DbService } from '../../../services/db.service';
+import { DIALOG_DATA } from '@angular/cdk/dialog';
 
 @Component({
   selector: 'app-object-viewer',
@@ -12,35 +13,16 @@ import { DbService } from '../../../services/db.service';
 })
 export class ObjectViewerComponent {
 
-  activatedRoute: ActivatedRoute = inject(ActivatedRoute);
-  router: Router = inject(Router);
   dbService: DbService = inject(DbService);
   fileService: FileService = inject(FileService);
-
-  currentObjectInView!: FileItem;
+  currentObjectInView: FileItem = inject(DIALOG_DATA);
 
   ngOnInit() {
-    const PK = this.activatedRoute.snapshot.queryParamMap.get('PK');
-    const SK = this.activatedRoute.snapshot.queryParamMap.get('SK');
-
-    if (PK && SK) {
-      this.dbService.getObject(PK, SK).subscribe({
-        next: (response: GetObjectResponse) => {
-          this.currentObjectInView = response.item;
-          this.fileService.downloadFiles(true, [this.currentObjectInView.fileName]).subscribe({
-            next: (response: { signedUrls: { [key: string]: string; }; }) => {
-              this.currentObjectInView.fileUrl = response.signedUrls[this.currentObjectInView.fileName];
-            }
-          })
-        },
-        error: (error) => {
-          console.error(error);
-        }
-      });
-    } else {
-      this.router.navigate(['/']);
-      alert('PK or SK is not working as expected');
-    }
-
+    const { fileName } = this.currentObjectInView;
+    this.fileService.downloadFiles(true, [fileName]).subscribe({
+      next: (response: { signedUrls: { [key: string]: string; }; }) => {
+        this.currentObjectInView.fileUrl = response.signedUrls[this.currentObjectInView.fileName];
+      }
+    });
   }
 }
