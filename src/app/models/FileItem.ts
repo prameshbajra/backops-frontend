@@ -1,3 +1,7 @@
+export interface GetObjectResponse {
+  item: FileItem;
+}
+
 export interface GetObjectListResponse {
   items: FileItem[];
   nextToken: string;
