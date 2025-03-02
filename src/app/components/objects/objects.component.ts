@@ -5,7 +5,7 @@ import { FileItem } from '../../models/FileItem';
 import { DbService } from '../../services/db.service';
 
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { FileService } from '../../services/file.service';
 
@@ -14,7 +14,6 @@ import { Utility } from '../../utility';
 import { LoaderComponent } from '../shared/loader/loader.component';
 import { ObjectFabComponent } from './object-fab/object-fab.component';
 import { Router } from '@angular/router';
-import { Dialog } from '@angular/cdk/dialog';
 import { ObjectViewerComponent } from './object-viewer/object-viewer.component';
 
 @Component({
@@ -47,7 +46,7 @@ export class ObjectsComponent {
   fileUploadService: FileService = inject(FileService);
   dbService: DbService = inject(DbService);
   router: Router = inject(Router);
-  dialog: Dialog = inject(Dialog);
+  dialog: MatDialog = inject(MatDialog);
 
 
   applyFilterObjectListSubscription!: Subscription;
@@ -225,7 +224,3 @@ export class ObjectsComponent {
     this.applyFilterObjectListSubscription?.unsubscribe();
   }
 }
-function openDialog(enterAnimationDuration: any, string: any, exitAnimationDuration: any, string1: any) {
-  throw new Error('Function not implemented.');
-}
-

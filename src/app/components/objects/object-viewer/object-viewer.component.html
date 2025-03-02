@@ -1,3 +1,14 @@
+<div class="flex">
+  <div>
+    <button (click)="onBackPress()">
+      <-
+    </button>
+  </div>
+
+</div>
 <div class="flex justify-center items-center w-screen h-screen bg-white dark:bg-gray-900">
-  <img class="h-auto max-w-full" [src]="currentObjectInView.fileUrl">
+  <div class="relative">
+    <img #image class="block h-auto max-w-full" [src]="currentObjectInView.fileUrl"/>
+    <canvas #canvas class="absolute inset-0 z-10" (click)="onCanvasClick($event)"></canvas>
+  </div>
 </div>
