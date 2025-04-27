@@ -48,7 +48,6 @@ export class ObjectsComponent {
   router: Router = inject(Router);
   dialog: MatDialog = inject(MatDialog);
 
-
   applyFilterObjectListSubscription!: Subscription;
   shouldUpdateObjectListSubscription!: Subscription;
 

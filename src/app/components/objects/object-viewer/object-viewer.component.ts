@@ -1,8 +1,9 @@
 import { Component, ElementRef, ViewChild, inject } from '@angular/core';
-import { Face, FaceRecord, FileItem, GetObjectResponse } from '../../../models/FileItem';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { FaceData } from '../../../models/FaceData';
+import { FileItem } from '../../../models/FileItem';
 import { DbService } from '../../../services/db.service';
 import { FileService } from '../../../services/file.service';
-import { MatDialogRef, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-object-viewer',
@@ -24,23 +25,33 @@ export class ObjectViewerComponent {
   faceBoxes: Array<{ faceId: string; left: number; top: number; width: number; height: number }> = [];
 
   ngOnInit() {
-    const { fileName, PK, SK } = this.currentObjectInView;
+    const { fileName, imageId } = this.currentObjectInView;
 
     this.fileService.downloadFiles(true, [fileName]).subscribe({
       next: (response: { signedUrls: { [key: string]: string; }; }) => {
         this.currentObjectInView.fileUrl = response.signedUrls[fileName];
+      },
+      error: (error) => {
+        console.error('Error downloading file:', error);
       }
     });
 
-    this.dbService.getObject(PK, SK).subscribe({
-      next: (response: GetObjectResponse) => {
-        this.currentObjectInView.details = response.item.details;
-        this.drawBoundingBoxes();
-      }
-    });
+    if (imageId) {
+      this.dbService.getFacesData(`IMAGE#${imageId}`).subscribe({
+        next: (response: FaceData[]) => {
+          console.log('Face data:', response);
+          this.drawBoundingBoxes(response);
+        },
+        error: (error) => {
+          console.error('Error fetching object details:', error);
+        }
+      });
+    } else {
+      console.log('No imageId in object data. Maybe image does not have a face.');
+    }
   }
 
-  drawBoundingBoxes() {
+  drawBoundingBoxes(faceData: FaceData[]) {
     if (!this.imageRef || !this.canvasRef) return;
 
     const img = this.imageRef.nativeElement;
@@ -54,10 +65,9 @@ export class ObjectViewerComponent {
     // Clear previous drawings
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const facesDetails = this.currentObjectInView.details?.FaceRecords?.map((_: FaceRecord) => _.Face) || [];
-    facesDetails.forEach((faceDetail: Face) => {
-      const { FaceId, ImageId, Confidence, BoundingBox } = faceDetail;
-      const { Top, Left, Width, Height } = BoundingBox;
+    faceData.forEach((faceDetail: FaceData) => {
+      const { PK, SK, confidence, boundingBox } = faceDetail;
+      const { Top, Left, Width, Height } = boundingBox;
 
       const top = Top * img.height;
       const left = Left * img.width;
@@ -68,7 +78,7 @@ export class ObjectViewerComponent {
       ctx.lineWidth = 2;
       ctx.strokeRect(left, top, width, height);
 
-      this.faceBoxes.push({ faceId: FaceId, left, top, width, height });
+      this.faceBoxes.push({ faceId: SK, left, top, width, height });
     });
   }
 

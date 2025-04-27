@@ -15,7 +15,7 @@ export interface FileItem {
   fileSize: number;
   fileUrl?: string;
   isSelected?: boolean;
-  details?: { FaceRecords: FaceRecord[] };
+  imageId: string;
 }
 
 export interface BoundingBox {

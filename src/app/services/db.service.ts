@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { GetObjectListResponse, GetObjectResponse } from '../models/FileItem';
+import { FaceData } from '../models/FaceData';
 
 @Injectable({
   providedIn: 'root'
@@ -34,5 +35,10 @@ export class DbService {
   getObjectList(nextToken: string | null, timestampPrefix: string | null): Observable<GetObjectListResponse> {
     const url = `${environment.AUTH_API_URL}objects`;
     return this.http.post<GetObjectListResponse>(url, { nextToken, timestampPrefix });
+  }
+
+  getFacesData(PK: string): Observable<FaceData[]> {
+    const url = `${environment.AUTH_API_URL}get-faces`;
+    return this.http.post<FaceData[]>(url, { PK });
   }
 }
