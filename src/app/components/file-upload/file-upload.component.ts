@@ -74,9 +74,9 @@ export class FileUploadComponent {
             PartNumber: index + 1
           }));
           const uploadId = data.uploadId;
-          const key = file.name;
+          const fileName = data.fileName; // backend changes the file name to be jpg extension ...
 
-          this.fileUploadService.completeMultipartUpload(uploadId, key, parts, file.name, file.size).subscribe({
+          this.fileUploadService.completeMultipartUpload(uploadId, fileName, file.size, parts).subscribe({
             next: (result) => {
               console.log('File uploaded successfully:', result);
               resolve();
