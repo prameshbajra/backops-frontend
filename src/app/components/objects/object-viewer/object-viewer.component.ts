@@ -22,12 +22,12 @@ export class ObjectViewerComponent {
   currentObjectInView: FileItem = inject(MAT_DIALOG_DATA);
   readonly dialogRef = inject(MatDialogRef<ObjectViewerComponent>);
 
-  faceBoxes: Array<{ faceId: string; left: number; top: number; width: number; height: number }> = [];
+  faceData: FaceData[] = [];
 
   ngOnInit() {
-    const { fileName, imageId } = this.currentObjectInView;
+    const { fileName } = this.currentObjectInView;
 
-    this.fileService.downloadFiles(true, [fileName]).subscribe({
+    this.fileService.downloadFiles(false, [fileName]).subscribe({
       next: (response: { signedUrls: { [key: string]: string; }; }) => {
         this.currentObjectInView.fileUrl = response.signedUrls[fileName];
       },
@@ -35,12 +35,19 @@ export class ObjectViewerComponent {
         console.error('Error downloading file:', error);
       }
     });
+    this.getFacesData();
+  }
 
+  onImageLoad() {
+    this.drawBoundingBoxes();
+  }
+
+  getFacesData() {
+    const { imageId } = this.currentObjectInView;
     if (imageId) {
       this.dbService.getFacesData(`IMAGE#${imageId}`).subscribe({
         next: (response: FaceData[]) => {
-          console.log('Face data:', response);
-          this.drawBoundingBoxes(response);
+          this.faceData = response;
         },
         error: (error) => {
           console.error('Error fetching object details:', error);
@@ -51,7 +58,7 @@ export class ObjectViewerComponent {
     }
   }
 
-  drawBoundingBoxes(faceData: FaceData[]) {
+  drawBoundingBoxes() {
     if (!this.imageRef || !this.canvasRef) return;
 
     const img = this.imageRef.nativeElement;
@@ -59,14 +66,15 @@ export class ObjectViewerComponent {
     const ctx = canvas.getContext('2d');
 
     if (!ctx) return;
+    // Making sure the canvas is the same size as the image
     canvas.width = img.clientWidth;
     canvas.height = img.clientHeight;
 
     // Clear previous drawings
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    faceData.forEach((faceDetail: FaceData) => {
-      const { PK, SK, confidence, boundingBox } = faceDetail;
+    this.faceData.forEach((faceDetail: FaceData) => {
+      const { boundingBox } = faceDetail;
       const { Top, Left, Width, Height } = boundingBox;
 
       const top = Top * img.height;
@@ -77,8 +85,6 @@ export class ObjectViewerComponent {
       ctx.strokeStyle = 'red';
       ctx.lineWidth = 2;
       ctx.strokeRect(left, top, width, height);
-
-      this.faceBoxes.push({ faceId: SK, left, top, width, height });
     });
   }
 
@@ -89,12 +95,21 @@ export class ObjectViewerComponent {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    for (const box of this.faceBoxes) {
+    const faceBoxes = this.faceData.map(face => ({
+      left: face.boundingBox.Left * canvas.width,
+      top: face.boundingBox.Top * canvas.height,
+      width: face.boundingBox.Width * canvas.width,
+      height: face.boundingBox.Height * canvas.height,
+      imageId: face.PK,
+      faceId: face.SK,
+    }));
+
+    for (const box of faceBoxes) {
       const inBoxX = x >= box.left && x <= (box.left + box.width);
       const inBoxY = y >= box.top && y <= (box.top + box.height);
 
       if (inBoxX && inBoxY) {
-        console.log('Clicked on face', box.faceId);
+        console.log('Clicked on face', box);
       }
     }
   }
