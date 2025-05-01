@@ -37,7 +37,9 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     const currentUser = this.authService.currentUser();
 
-    if (!currentUser) {
+    if (currentUser) {
+      this.router.navigate(['/']);
+    } else {
       this.authService.getCurrentUser().subscribe({
         next: (cognitoUser: CognitoUserData) => this.handleUserLoginSuccess(cognitoUser),
         error: (error) => this.handleLoginError(error)
