@@ -1,5 +1,6 @@
 import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { Subscription, debounceTime, fromEvent } from 'rxjs';
 import { FaceData } from '../../../models/FaceData';
 import { FileItem } from '../../../models/FileItem';
 import { DbService } from '../../../services/db.service';
@@ -17,25 +18,31 @@ export class ObjectViewerComponent {
 
   @ViewChild('image') imageRef!: ElementRef<HTMLImageElement>;
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>;
+
   dbService: DbService = inject(DbService);
   fileService: FileService = inject(FileService);
   currentObjectInView: FileItem = inject(MAT_DIALOG_DATA);
   readonly dialogRef = inject(MatDialogRef<ObjectViewerComponent>);
 
   faceData: FaceData[] = [];
+  resizeSub!: Subscription;
 
-  ngOnInit() {
+  ngAfterViewInit() {
     const { fileName } = this.currentObjectInView;
-
     this.fileService.downloadFiles(false, [fileName]).subscribe({
-      next: (response: { signedUrls: { [key: string]: string; }; }) => {
+      next: (response) => {
         this.currentObjectInView.fileUrl = response.signedUrls[fileName];
       },
       error: (error) => {
         console.error('Error downloading file:', error);
       }
     });
+
     this.getFacesData();
+    // Handle browser resize
+    this.resizeSub = fromEvent(window, 'resize')
+      .pipe(debounceTime(200))
+      .subscribe(() => this.drawBoundingBoxes());
   }
 
   onImageLoad() {
@@ -48,13 +55,12 @@ export class ObjectViewerComponent {
       this.dbService.getFacesData(`IMAGE#${imageId}`).subscribe({
         next: (response: FaceData[]) => {
           this.faceData = response;
+          this.drawBoundingBoxes();  // Re-draw after face data loads
         },
         error: (error) => {
           console.error('Error fetching object details:', error);
         }
       });
-    } else {
-      console.log('No imageId in object data. Maybe image does not have a face.');
     }
   }
 
@@ -66,21 +72,21 @@ export class ObjectViewerComponent {
     const ctx = canvas.getContext('2d');
 
     if (!ctx) return;
-    // Making sure the canvas is the same size as the image
+
+    // Match canvas size to image dimensions
     canvas.width = img.clientWidth;
     canvas.height = img.clientHeight;
 
-    // Clear previous drawings
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     this.faceData.forEach((faceDetail: FaceData) => {
       const { boundingBox } = faceDetail;
       const { Top, Left, Width, Height } = boundingBox;
 
-      const top = Top * img.height;
-      const left = Left * img.width;
-      const width = Width * img.width;
-      const height = Height * img.height;
+      const top = Top * img.clientHeight;
+      const left = Left * img.clientWidth;
+      const width = Width * img.clientWidth;
+      const height = Height * img.clientHeight;
 
       ctx.strokeStyle = 'red';
       ctx.lineWidth = 2;
@@ -105,10 +111,12 @@ export class ObjectViewerComponent {
     }));
 
     for (const box of faceBoxes) {
-      const inBoxX = x >= box.left && x <= (box.left + box.width);
-      const inBoxY = y >= box.top && y <= (box.top + box.height);
-
-      if (inBoxX && inBoxY) {
+      if (
+        x >= box.left &&
+        x <= box.left + box.width &&
+        y >= box.top &&
+        y <= box.top + box.height
+      ) {
         console.log('Clicked on face', box);
       }
     }
@@ -116,6 +124,12 @@ export class ObjectViewerComponent {
 
   onBackPress() {
     this.dialogRef.close();
+  }
+
+  ngOnDestroy() {
+    if (this.resizeSub) {
+      this.resizeSub.unsubscribe();
+    }
   }
 
 }
