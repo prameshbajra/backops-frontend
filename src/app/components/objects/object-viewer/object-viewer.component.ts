@@ -117,7 +117,8 @@ export class ObjectViewerComponent {
         y >= box.top &&
         y <= box.top + box.height
       ) {
-        console.log('Clicked on face', box);
+        console.log('Clicked face:', box);
+        break;
       }
     }
   }
