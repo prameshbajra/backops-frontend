@@ -130,10 +130,14 @@ export class ObjectViewerComponent {
   }
 
   onFaceClick(box: { left: number; top: number; width: number; height: number; imageId: string; faceId: string }): void {
-    console.log('Face clicked:', box);
+    const faceName = prompt('Enter face name:');
+    if (!faceName) {
+      alert('Face name is required!');
+      return;
+    }
+    console.log('Face clicked:', box, 'Face Name:', faceName);
     const imageId = box.imageId;
     const faceId = box.faceId;
-    const faceName = "Pramesh";
     this.dbService.updateFaceData({ imageId, faceId, faceName }).subscribe({
       next: (response) => {
         console.log('Face data updated successfully:', response);
