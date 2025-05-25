@@ -10,4 +10,5 @@ export interface FaceData {
   SK: string;
   boundingBox: BoundingBox;
   confidence: number;
+  faceName?: string;
 }

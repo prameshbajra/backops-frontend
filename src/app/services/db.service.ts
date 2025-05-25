@@ -41,4 +41,9 @@ export class DbService {
     const url = `${environment.AUTH_API_URL}get-faces`;
     return this.http.post<FaceData[]>(url, { PK });
   }
+
+  updateFaceData(faceData: { imageId: string, faceId: string, faceName: string }): Observable<FaceData> {
+    const url = `${environment.AUTH_API_URL}update-face`;
+    return this.http.post<FaceData>(url, faceData);
+  }
 }

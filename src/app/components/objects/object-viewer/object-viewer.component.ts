@@ -80,7 +80,7 @@ export class ObjectViewerComponent {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     this.faceData.forEach((faceDetail: FaceData) => {
-      const { boundingBox } = faceDetail;
+      const { boundingBox, faceName } = faceDetail;
       const { Top, Left, Width, Height } = boundingBox;
 
       const top = Top * img.clientHeight;
@@ -91,6 +91,12 @@ export class ObjectViewerComponent {
       ctx.strokeStyle = 'red';
       ctx.lineWidth = 2;
       ctx.strokeRect(left, top, width, height);
+
+      if (faceName) {
+        ctx.fillStyle = 'red';
+        ctx.font = '16px Arial';
+        ctx.fillText(faceName, left, top - 5);
+      }
     });
   }
 
@@ -117,10 +123,25 @@ export class ObjectViewerComponent {
         y >= box.top &&
         y <= box.top + box.height
       ) {
-        console.log('Clicked face:', box);
+        this.onFaceClick(box);
         break;
       }
     }
+  }
+
+  onFaceClick(box: { left: number; top: number; width: number; height: number; imageId: string; faceId: string }): void {
+    console.log('Face clicked:', box);
+    const imageId = box.imageId;
+    const faceId = box.faceId;
+    const faceName = "Pramesh";
+    this.dbService.updateFaceData({ imageId, faceId, faceName }).subscribe({
+      next: (response) => {
+        console.log('Face data updated successfully:', response);
+      },
+      error: (error) => {
+        console.error('Error updating face data:', error);
+      }
+    });
   }
 
   onBackPress() {
