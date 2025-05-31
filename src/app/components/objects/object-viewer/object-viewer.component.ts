@@ -1,4 +1,6 @@
+import { CommonModule } from '@angular/common';
 import { Component, ElementRef, ViewChild, inject } from '@angular/core';
+import { MatChipsModule } from '@angular/material/chips';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { Subscription, debounceTime, fromEvent } from 'rxjs';
 import { FaceData } from '../../../models/FaceData';
@@ -11,6 +13,8 @@ import { FileService } from '../../../services/file.service';
   templateUrl: './object-viewer.component.html',
   styleUrl: './object-viewer.component.css',
   imports: [
+    CommonModule,
+    MatChipsModule,
     MatDialogModule
   ]
 })
@@ -88,15 +92,9 @@ export class ObjectViewerComponent {
       const width = Width * img.clientWidth;
       const height = Height * img.clientHeight;
 
-      ctx.strokeStyle = 'red';
+      ctx.strokeStyle = 'white';
       ctx.lineWidth = 2;
       ctx.strokeRect(left, top, width, height);
-
-      if (faceName) {
-        ctx.fillStyle = 'red';
-        ctx.font = '16px Arial';
-        ctx.fillText(faceName, left, top - 5);
-      }
     });
   }
 
@@ -146,6 +144,21 @@ export class ObjectViewerComponent {
         console.error('Error updating face data:', error);
       }
     });
+  }
+
+  getChipStyle(face: FaceData): { [key: string]: string } {
+    const img = this.imageRef?.nativeElement;
+    if (!img) return {};
+
+    const { Top, Left } = face.boundingBox;
+    const top = `${(Top * img.clientHeight) - 15}px`;
+    const left = `${Left * img.clientWidth - 2}px`;
+
+    return {
+      top,
+      left,
+      position: 'absolute',
+    };
   }
 
   onBackPress() {

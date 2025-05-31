@@ -1,0 +1,7 @@
+::ng-deep .mat-chip {
+  padding: 0 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  background-color: transparent;
+  color: white;
+}

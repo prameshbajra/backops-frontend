@@ -5,6 +5,12 @@
     <div class="relative">
       <img #image class="block w-full h-auto" [src]="currentObjectInView.fileUrl" (load)="onImageLoad()" />
       <canvas #canvas class="absolute top-0 left-0 z-10" (click)="onCanvasClick($event)"></canvas>
+
+      <div *ngFor="let face of faceData" class="absolute z-20" [ngStyle]="getChipStyle(face)">
+        <mat-chip color="primary" class="text-xs font-extralight">
+          {{ face.faceName }}
+        </mat-chip>
+      </div>
     </div>
   </div>
 
