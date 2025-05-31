@@ -1,12 +1,15 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject } from '@angular/core';
 import { DbService } from '../../../services/db.service';
 import { Utility } from '../../../utility';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-filter',
-    imports: [CommonModule],
+  imports: [
+    CommonModule
+  ],
     templateUrl: './filter.component.html',
     styleUrl: './filter.component.css'
 })

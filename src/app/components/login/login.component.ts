@@ -4,15 +4,15 @@ import { Router } from '@angular/router';
 import { SignInResponse } from '../../models/SignInResponse';
 import { CognitoUserData, User } from '../../models/User';
 import { AuthService } from '../../services/auth.service';
-import { CommonModule } from '@angular/common';
+
 import { LoaderComponent } from '../shared/loader/loader.component';
 
 @Component({
   selector: 'app-login',
   imports: [
-    ReactiveFormsModule, CommonModule,
+    ReactiveFormsModule,
     LoaderComponent
-  ],
+],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, HostListener, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { FileItem } from '../../models/FileItem';
@@ -15,6 +15,7 @@ import { LoaderComponent } from '../shared/loader/loader.component';
 import { ObjectFabComponent } from './object-fab/object-fab.component';
 import { Router } from '@angular/router';
 import { ObjectViewerComponent } from './object-viewer/object-viewer.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-objects',

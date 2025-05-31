@@ -1,40 +1,40 @@
 <div class="px-10 py-16">
   @for (group of groupedFiles; track group.key) {
-  <h2 class="text-xl pt-8 pb-4 dark:text-gray-400">{{ group.key | date:'longDate' }}</h2>
-  <div class="object-container flex justify-start items-center gap-2 flex-wrap" (click)="onObjectAreaClick($event)">
-    @for (file of group.files; track $index) {
-    <div class="relative group w-24 h-24 sm:w-48 sm:h-48" [ngClass]="{ 'outline outline-2 outline-blue-500 rounded-lg': file.isSelected }">
-      <input type="checkbox" (click)="toggleSelection(file)" [checked]="file.isSelected"
-        class="z-10 absolute top-2 left-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full appearance-none border-2 border-gray-500 bg-white cursor-pointer transition-colors checked:bg-blue-500 checked:border-blue-500"
-        [ngClass]="file.isSelected ? 'opacity-100' : 'opacity-60'">
-      <span class="z-10 absolute top-2 left-2 w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-white pointer-events-none"
-        [ngClass]="{ 'opacity-100': file.isSelected, 'opacity-0': !file.isSelected }">
-        ✔
-      </span>
-      <img (click)="selectObject(file)" class="w-full h-full object-cover rounded-lg transition-transform" [ngClass]="{ 'scale-95': file.isSelected }"
-        [src]="file.fileUrl" alt="" />
+    <h2 class="text-xl pt-8 pb-4 dark:text-gray-400">{{ group.key | date:'longDate' }}</h2>
+    <div class="object-container flex justify-start items-center gap-2 flex-wrap" (click)="onObjectAreaClick($event)">
+      @for (file of group.files; track $index) {
+        <div class="relative group w-24 h-24 sm:w-48 sm:h-48" [ngClass]="{ 'outline outline-2 outline-blue-500 rounded-lg': file.isSelected }">
+          <input type="checkbox" (click)="toggleSelection(file)" [checked]="file.isSelected"
+            class="z-10 absolute top-2 left-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full appearance-none border-2 border-gray-500 bg-white cursor-pointer transition-colors checked:bg-blue-500 checked:border-blue-500"
+            [ngClass]="file.isSelected ? 'opacity-100' : 'opacity-60'">
+          <span class="z-10 absolute top-2 left-2 w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-white pointer-events-none"
+            [ngClass]="{ 'opacity-100': file.isSelected, 'opacity-0': !file.isSelected }">
+            ✔
+          </span>
+          <img (click)="selectObject(file)" class="w-full h-full object-cover rounded-lg transition-transform" [ngClass]="{ 'scale-95': file.isSelected }"
+            [src]="file.fileUrl" alt="" />
+        </div>
+      }
     </div>
+    } @empty {
+    @if(nextPaginationToken === null && files.length === 0 && !areFilesLoading) {
+      <div class="w-full text-center py-16 sm:py-20">
+        <div class="text-gray-500 text-base sm:text-lg">
+          <mat-icon class="text-3xl mb-3 text-gray-300">folder_off</mat-icon>
+          <p>No files here 📂</p>
+        </div>
+      </div>
     }
-  </div>
-  } @empty {
-  @if(nextPaginationToken === null && files.length === 0 && !areFilesLoading) {
-  <div class="w-full text-center py-16 sm:py-20">
-    <div class="text-gray-500 text-base sm:text-lg">
-      <mat-icon class="text-3xl mb-3 text-gray-300">folder_off</mat-icon>
-      <p>No files here 📂</p>
-    </div>
-  </div>
-  }
   }
 
   @if(nextPaginationToken === null && files.length > 0 && !areFilesLoading) {
-  <div class="w-100 flex justify-center items-center my-20">
-    <h3 class="text-gray-500 text-base sm:text-lg">Woop! That's all 😁</h3>
-  </div>
+    <div class="w-100 flex justify-center items-center my-20">
+      <h3 class="text-gray-500 text-base sm:text-lg">Woop! That's all 😁</h3>
+    </div>
   }
 
   @if(areFilesLoading) {
-  <app-loader></app-loader>
+    <app-loader></app-loader>
   }
 </div>
 
@@ -46,14 +46,14 @@
     [disabled]="areFilesBeingDeleted || areFilesBeingDownloaded" style="min-width: 120px;"> <!-- Set a fixed or minimum width -->
     <div class="flex items-center gap-2">
       @if(areFilesBeingDeleted) {
-      <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-      </svg>
+        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
       } @else {
-      <ng-container *ngIf="!areFilesBeingDeleted">
-        <mat-icon>delete</mat-icon>
-      </ng-container>
+        @if (!areFilesBeingDeleted) {
+          <mat-icon>delete</mat-icon>
+        }
       }
       <span>
         {{ areFilesBeingDeleted ? 'Deleting...' : getSelectedFilesCount() > 1 ? 'Delete all' : 'Delete' }}
@@ -64,14 +64,14 @@
     class="px-3 py-1 bg-blue-500 text-white text-sm rounded flex items-center gap-2 hover:bg-blue-700">
     <div class="flex items-center gap-2">
       @if(areFilesBeingDownloaded) {
-      <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-      </svg>
+        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
       } @else {
-      <ng-container *ngIf="!areFilesBeingDeleted">
-        <mat-icon>cloud_download</mat-icon>
-      </ng-container>
+        @if (!areFilesBeingDeleted) {
+          <mat-icon>cloud_download</mat-icon>
+        }
       }
       <span>
         {{ areFilesBeingDownloaded ? 'Downloading...' : 'Download (' + getSelectedFilesCount() + ')' }}

@@ -18,3 +18,11 @@ body {
     background: #374151 !important;
   }
 }
+
+::ng-deep .mat-chip {
+  padding: 0 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  background-color: rgba(0, 123, 255, 0.85);
+  color: white;
+}

@@ -1,5 +1,5 @@
 import { animate, style, transition, trigger } from '@angular/animations';
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnInit } from '@angular/core';
 import { from, mergeMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -7,7 +7,7 @@ import { FileService } from '../../services/file.service';
 
 @Component({
     selector: 'app-file-upload',
-    imports: [CommonModule],
+    imports: [],
     templateUrl: './file-upload.component.html',
     styleUrl: './file-upload.component.css',
     animations: [
