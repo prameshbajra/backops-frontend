@@ -2,11 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { MatChipsModule } from '@angular/material/chips';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { Subscription, debounceTime, fromEvent } from 'rxjs';
 import { FaceData } from '../../../models/FaceData';
 import { FileItem } from '../../../models/FileItem';
 import { DbService } from '../../../services/db.service';
 import { FileService } from '../../../services/file.service';
+import { Subscription, fromEvent, debounceTime } from 'rxjs';
 
 @Component({
   selector: 'app-object-viewer',
@@ -43,14 +43,17 @@ export class ObjectViewerComponent {
     });
 
     this.getFacesData();
-    // Handle browser resize
     this.resizeSub = fromEvent(window, 'resize')
       .pipe(debounceTime(200))
-      .subscribe(() => this.drawBoundingBoxes());
+      .subscribe(() => this.triggerReflow());
   }
 
-  onImageLoad() {
-    this.drawBoundingBoxes();
+  onImageLoad(): void {
+    this.triggerReflow();
+  }
+
+  triggerReflow() {
+    this.faceData = [...this.faceData];
   }
 
   getFacesData() {
@@ -59,7 +62,6 @@ export class ObjectViewerComponent {
       this.dbService.getFacesData(`IMAGE#${imageId}`).subscribe({
         next: (response: FaceData[]) => {
           this.faceData = response;
-          this.drawBoundingBoxes();  // Re-draw after face data loads
         },
         error: (error) => {
           console.error('Error fetching object details:', error);
@@ -68,74 +70,15 @@ export class ObjectViewerComponent {
     }
   }
 
-  drawBoundingBoxes() {
-    if (!this.imageRef || !this.canvasRef) return;
-
-    const img = this.imageRef.nativeElement;
-    const canvas = this.canvasRef.nativeElement;
-    const ctx = canvas.getContext('2d');
-
-    if (!ctx) return;
-
-    // Match canvas size to image dimensions
-    canvas.width = img.clientWidth;
-    canvas.height = img.clientHeight;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    this.faceData.forEach((faceDetail: FaceData) => {
-      const { boundingBox, faceName } = faceDetail;
-      const { Top, Left, Width, Height } = boundingBox;
-
-      const top = Top * img.clientHeight;
-      const left = Left * img.clientWidth;
-      const width = Width * img.clientWidth;
-      const height = Height * img.clientHeight;
-
-      ctx.strokeStyle = 'white';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(left, top, width, height);
-    });
-  }
-
-  onCanvasClick(event: MouseEvent) {
-    const canvas = this.canvasRef.nativeElement;
-    const rect = canvas.getBoundingClientRect();
-
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    const faceBoxes = this.faceData.map(face => ({
-      left: face.boundingBox.Left * canvas.width,
-      top: face.boundingBox.Top * canvas.height,
-      width: face.boundingBox.Width * canvas.width,
-      height: face.boundingBox.Height * canvas.height,
-      imageId: face.PK,
-      faceId: face.SK,
-    }));
-
-    for (const box of faceBoxes) {
-      if (
-        x >= box.left &&
-        x <= box.left + box.width &&
-        y >= box.top &&
-        y <= box.top + box.height
-      ) {
-        this.onFaceClick(box);
-        break;
-      }
-    }
-  }
-
-  onFaceClick(box: { left: number; top: number; width: number; height: number; imageId: string; faceId: string }): void {
+  onFaceClick(face: FaceData): void {
     const faceName = prompt('Enter face name:');
     if (!faceName) {
       alert('Face name is required!');
       return;
     }
-    console.log('Face clicked:', box, 'Face Name:', faceName);
-    const imageId = box.imageId;
-    const faceId = box.faceId;
+    console.log('Face clicked:', 'Face Name:', faceName);
+    const imageId = face.PK;
+    const faceId = face.SK;
     this.dbService.updateFaceData({ imageId, faceId, faceName }).subscribe({
       next: (response) => {
         console.log('Face data updated successfully:', response);
@@ -146,18 +89,19 @@ export class ObjectViewerComponent {
     });
   }
 
-  getChipStyle(face: FaceData): { [key: string]: string } {
+  getBoxStyle(face: FaceData): { [key: string]: string } {
     const img = this.imageRef?.nativeElement;
     if (!img) return {};
 
-    const { Top, Left } = face.boundingBox;
-    const top = `${(Top * img.clientHeight) - 15}px`;
-    const left = `${Left * img.clientWidth - 2}px`;
+    const { Top, Left, Width, Height } = face.boundingBox;
 
     return {
-      top,
-      left,
+      top: `${Top * img.clientHeight}px`,
+      left: `${Left * img.clientWidth}px`,
+      width: `${Width * img.clientWidth}px`,
+      height: `${Height * img.clientHeight}px`,
       position: 'absolute',
+      cursor: 'pointer',
     };
   }
 

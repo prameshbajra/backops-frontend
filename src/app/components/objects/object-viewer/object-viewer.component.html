@@ -4,14 +4,17 @@
   <div class="flex-1 flex justify-center items-center overflow-auto">
     <div class="relative">
       <img #image class="block w-full h-auto" [src]="currentObjectInView.fileUrl" (load)="onImageLoad()" />
-      <canvas #canvas class="absolute top-0 left-0 z-10" (click)="onCanvasClick($event)"></canvas>
 
       @for (face of faceData; track face) {
-        <div class="absolute z-20" [ngStyle]="getChipStyle(face)">
-          <mat-chip color="primary" class="text-xs font-extralight">
-            {{ face.faceName }}
-          </mat-chip>
+      <div class="absolute z-10 face-box" [ngStyle]="getBoxStyle(face)" (click)="onFaceClick(face)">
+
+        @if (face.faceName) {
+        <div class="tooltip-box" (click)="onFaceClick(face); $event.stopPropagation()">
+          {{ face.faceName }}
+          <div class="tooltip-arrow"></div>
         </div>
+        }
+      </div>
       }
     </div>
   </div>
