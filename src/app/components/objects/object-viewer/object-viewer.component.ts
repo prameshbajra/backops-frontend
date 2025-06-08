@@ -82,6 +82,7 @@ export class ObjectViewerComponent {
     this.dbService.updateFaceData({ imageId, faceId, faceName }).subscribe({
       next: (response) => {
         console.log('Face data updated successfully:', response);
+        face.faceName = faceName;
       },
       error: (error) => {
         console.error('Error updating face data:', error);
