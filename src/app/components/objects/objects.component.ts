@@ -219,6 +219,32 @@ export class ObjectsComponent {
     file.isSelected = !file.isSelected;
   }
 
+  isGroupFullySelected(group: { key: string; files: FileItem[] }): boolean {
+    return group.files.every((file: FileItem) => file.isSelected);
+  }
+
+  isGroupPartiallySelected(group: { key: string; files: FileItem[] }): boolean {
+    const selectedCount = group.files.filter((file: FileItem) => file.isSelected).length;
+    return selectedCount > 0 && selectedCount < group.files.length;
+  }
+
+  toggleGroupSelection(group: { key: string; files: FileItem[] }, event: Event | null): void {
+    if (event === null) {
+      const shouldSelect = !this.isGroupFullySelected(group);
+      this.performGroupToggle(group, shouldSelect);
+      return;
+    }
+
+    const checkbox = event.target as HTMLInputElement;
+    this.performGroupToggle(group, checkbox.checked);
+  }
+
+  private performGroupToggle(group: { key: string; files: FileItem[] }, shouldSelect: boolean): void {
+    group.files.forEach((file: FileItem) => {
+      file.isSelected = shouldSelect;
+    });
+  }
+
   ngOnDestroy() {
     this.shouldUpdateObjectListSubscription?.unsubscribe();
     this.applyFilterObjectListSubscription?.unsubscribe();
