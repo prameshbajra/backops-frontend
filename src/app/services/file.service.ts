@@ -48,9 +48,10 @@ export class FileService {
     return this.http.post<any>(url, { fileName, fileSize });
   }
 
-  completeMultipartUpload(uploadId: string, fileName: string, fileSize: number, parts: any[]): Observable<any> {
+  completeMultipartUpload(uploadId: string, fileName: string, fileSize: number, parts: any[], imageMetadata?: any): Observable<any> {
     const url = `${environment.AUTH_API_URL}complete`;
-    return this.http.post<any>(url, { uploadId, fileName, fileSize, parts });
+    const payload = { uploadId, fileName, fileSize, parts, ...(imageMetadata && { imageMetadata }) };
+    return this.http.post<any>(url, payload);
   }
 
   deleteFiles(files: FileItem[]) {

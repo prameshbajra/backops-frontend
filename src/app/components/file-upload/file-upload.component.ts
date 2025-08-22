@@ -4,6 +4,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { from, mergeMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { FileService } from '../../services/file.service';
+import { Utility } from '../../utility';
 
 @Component({
     selector: 'app-file-upload',
@@ -63,10 +64,12 @@ export class FileUploadComponent {
     });
   }
 
+
   uploadSingleFile(file: File): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       this.fileUploadService.getPresignedUrls(file.name, file.size).subscribe(async (data) => {
         try {
+          const imageMetadata = await Utility.extractImageMetadata(file);
           const presignedUrls = data.presignedUrls;
           const uploadResponses = await this.fileUploadService.uploadFile(file, presignedUrls);
           const parts = uploadResponses.map((response, index) => ({
@@ -76,7 +79,7 @@ export class FileUploadComponent {
           const uploadId = data.uploadId;
           const fileName = data.fileName; // backend changes the file name to be jpg extension ...
 
-          this.fileUploadService.completeMultipartUpload(uploadId, fileName, file.size, parts).subscribe({
+          this.fileUploadService.completeMultipartUpload(uploadId, fileName, file.size, parts, imageMetadata).subscribe({
             next: (result) => {
               console.log('File uploaded successfully:', result);
               resolve();
