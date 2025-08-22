@@ -1,19 +1,24 @@
 <div class="px-10 py-16">
   @for (group of groupedFiles; track group.key) {
-  <div class="flex justify-start items-center gap-3 pt-8 pb-4">
-    <div class="flex relative">
-      <input type="checkbox" [checked]="isGroupFullySelected(group)" [indeterminate]="isGroupPartiallySelected(group)"
-        (change)="toggleGroupSelection(group, $event)"
-        class="w-5 h-5 sm:w-6 sm:h-6 rounded-full appearance-none border-2 border-gray-500 bg-white cursor-pointer transition-colors checked:bg-blue-500 checked:border-blue-500"
-        [ngClass]="isGroupFullySelected(group) ? 'opacity-100' : 'opacity-60'">
-      <span class="absolute top-0 left-0 w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-white pointer-events-none"
-        [ngClass]="{ 'opacity-100': isGroupFullySelected(group), 'opacity-0': !isGroupFullySelected(group) }">
-        ✔
-      </span>
-    </div>
-    <h2 class="text-xl dark:text-gray-400 cursor-pointer select-none" (click)="toggleGroupSelection(group, null)">
+  <div class="flex justify-between items-center pt-8 pb-4">
+    <h2 class="text-xl dark:text-gray-400">
       {{ group.key | date:'longDate' }}
     </h2>
+    <div class="flex justify-end items-center gap-2">
+      <label class="text-sm text-gray-600 dark:text-gray-400 cursor-pointer select-none" (click)="toggleGroupSelection(group, null)">
+        Select All
+      </label>
+      <div class="flex relative">
+        <input type="checkbox" [checked]="isGroupFullySelected(group)" [indeterminate]="isGroupPartiallySelected(group)"
+          (change)="toggleGroupSelection(group, $event)"
+          class="w-5 h-5 sm:w-6 sm:h-6 rounded-full appearance-none border-2 border-gray-500 bg-white cursor-pointer transition-colors checked:bg-blue-500 checked:border-blue-500"
+          [ngClass]="isGroupFullySelected(group) ? 'opacity-100' : 'opacity-60'">
+        <span class="absolute top-0 left-0 w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-white pointer-events-none"
+          [ngClass]="{ 'opacity-100': isGroupFullySelected(group), 'opacity-0': !isGroupFullySelected(group) }">
+          ✔
+        </span>
+      </div>
+    </div>
   </div>
   <div class="object-container flex justify-start items-center gap-2 flex-wrap" (click)="onObjectAreaClick($event)">
     @for (file of group.files; track $index) {
