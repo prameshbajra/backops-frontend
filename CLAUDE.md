@@ -45,3 +45,6 @@ This is an Angular 19 application for file/image management with the following k
 ### Environment Configuration
 - API endpoints are configured in `src/environments/environment.ts`
 - Uses separate authenticated (`AUTH_API_URL`) and unauthenticated (`UNAUTH_API_URL`) endpoints
+
+### Testing
+- There are no tests and coverage is not implemented. So when making changes to the codebase, you do not need to run tests. Just make sure everything works.
