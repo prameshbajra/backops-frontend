@@ -1,5 +1,22 @@
 .face-box {
-  background-color: transparent;  cursor: pointer;
+  cursor: pointer;
+}
+
+/* Minimal corner indicators, no full box */
+.face-box .corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: rgba(59, 130, 246, 0.9);
+}
+.face-box .corner.tl { top: 0; left: 0; border-top: 2px solid; border-left: 2px solid; }
+.face-box .corner.tr { top: 0; right: 0; border-top: 2px solid; border-right: 2px solid; }
+.face-box .corner.bl { bottom: 0; left: 0; border-bottom: 2px solid; border-left: 2px solid; }
+.face-box .corner.br { bottom: 0; right: 0; border-bottom: 2px solid; border-right: 2px solid; }
+
+.face-box:hover .corner,
+.face-selected .corner {
+  border-color: #22c55e;
 }
 
 .tooltip-box {
@@ -7,7 +24,7 @@
   top: 0;
   left: 50%;
   transform: translate(-50%, -150%);
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(17, 24, 39, 0.7);
   color: white;
   padding: 4px 8px;
   border-radius: 4px;
@@ -27,3 +44,40 @@
   border-right: 4px solid transparent;
   border-top: 4px solid rgba(0, 0, 0, 0.4);
 }
+
+/* Navigation buttons */
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(17, 24, 39, 0.6);
+  color: #fff;
+  border-radius: 9999px;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+}
+.nav-btn.left { left: 12px; }
+.nav-btn.right { right: 12px; }
+.nav-btn[disabled] {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* Floating tool buttons */
+.tool-fab {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  gap: 8px;
+}
+.tool-btn {
+  background: rgba(17, 24, 39, 0.6);
+  color: #fff;
+  border-radius: 9999px;
+  padding: 8px;
+  border: none;
+  cursor: pointer;
+}
+.tool-btn:hover, .nav-btn:hover { background: rgba(17, 24, 39, 0.8); }

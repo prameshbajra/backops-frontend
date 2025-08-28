@@ -1,21 +1,56 @@
 <div class="flex flex-col lg:flex-row w-screen h-screen bg-white dark:bg-gray-900 overflow-hidden relative">
 
   <!-- Image + Canvas Container -->
-  <div class="flex-1 flex justify-center items-center overflow-auto">
-    <div class="relative">
-      <img #image class="block w-full h-auto" [src]="currentObjectInView.fileUrl" (load)="onImageLoad()" />
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Viewport -->
+    <div #viewport class="relative flex-1 overflow-hidden bg-black/5 dark:bg-black/50 touch-pan-y" (wheel)="onWheel($event)"
+      (pointerdown)="onPointerDown($event)" (pointermove)="onPointerMove($event)" (pointerup)="onPointerUp($event)" (pointercancel)="onPointerUp($event)"
+      (lostpointercapture)="onPointerUp($event)">
+      <div #content class="absolute top-0 left-0" [ngStyle]="contentTransform">
+        <img #image class="block w-full h-auto select-none" [alt]="currentObjectInView.fileName" decoding="async" fetchpriority="high"
+          [src]="currentObjectInView.fileUrl" (load)="onImageLoad()" />
 
-      @for (face of faceData; track face) {
-      <div class="absolute z-10 face-box" [ngStyle]="getBoxStyle(face)" (click)="onFaceClick(face)">
-
-        @if (face.faceName) {
-        <div class="tooltip-box" (click)="onFaceClick(face); $event.stopPropagation()">
-          {{ face.faceName }}
-          <div class="tooltip-arrow"></div>
+        @for (face of faceData; track trackByFace(face)) {
+        <div class="absolute z-10 face-box" [ngStyle]="getBoxStyle(face)">
+          <div class="tooltip-box" (click)="editFaceName(face, $event)">
+            {{ face.faceName || '?' }}
+            <div class="tooltip-arrow"></div>
+          </div>
         </div>
         }
       </div>
+
+      @if (isLoading) {
+      <div class="absolute inset-0 flex items-center justify-center">
+        <app-loader></app-loader>
+      </div>
       }
+
+      <!-- Prev/Next Controls -->
+      <button class="nav-btn left" (click)="prev()" [disabled]="!canPrev" aria-label="Previous image">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <button class="nav-btn right" (click)="next()" [disabled]="!canNext" aria-label="Next image">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+
+      <!-- Floating Tools -->
+      <div class="tool-fab">
+        <button class="tool-btn" (click)="fitToScreen()" aria-label="Fit to screen">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4" />
+          </svg>
+        </button>
+        <button class="tool-btn" (click)="resetView()" aria-label="Reset view">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v6h6M20 20v-6h-6M20 8a8 8 0 10-16 0" />
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -36,6 +71,20 @@
       Image ID: {{ currentObjectInView.imageId || 'N/A' }}<br />
       Faces Detected: {{ faceData.length }}
     </p>
+
+    @if (faceData.length > 0) {
+    <br><hr>
+    <div class="mt-4">
+      <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Faces</h3>
+      <mat-chip-listbox>
+        @for (face of faceData; track trackByFace(face)) {
+        <mat-chip-option [selected]="selectedFaceId === face.SK" (click)="focusFace(face)">
+          {{ face.faceName || 'Unknown' }}
+        </mat-chip-option>
+        }
+      </mat-chip-listbox>
+    </div>
+    }
   </div>
 
 </div>

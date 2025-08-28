@@ -208,10 +208,11 @@ export class ObjectsComponent {
   }
 
   selectObject(file: FileItem): void {
+    const index = this.files.findIndex(f => f.PK === file.PK && f.SK === file.SK);
     this.dialog.open(ObjectViewerComponent, {
       minWidth: '100vw',
       minHeight: '100vh',
-      data: file,
+      data: { files: this.files, index: index >= 0 ? index : 0 },
     });
   }
 
