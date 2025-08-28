@@ -177,7 +177,7 @@ export class ObjectsComponent {
         // Fetch signed URLs for new files
         const fileNames = data.items.map((file) => Utility.checkFilenameReplaceExtension(file.fileName));
         if (fileNames.length > 0) {
-          this.fileUploadService.downloadFiles(true, fileNames).subscribe({
+          this.fileUploadService.downloadFilesCached(true, fileNames).subscribe({
             next: (response) => {
               const signedUrls = response.signedUrls;
               this.files.forEach((file) => {

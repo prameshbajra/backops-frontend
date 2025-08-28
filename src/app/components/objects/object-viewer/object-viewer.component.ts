@@ -43,6 +43,7 @@ export class ObjectViewerComponent {
   faceData: FaceData[] = [];
   resizeSub!: Subscription;
   resizeObserver?: ResizeObserver;
+  private facesRequestKey?: string;
 
   // Loading state
   isLoading = true;
@@ -98,23 +99,34 @@ export class ObjectViewerComponent {
   getFacesData() {
     const { imageId } = this.currentObjectInView;
     if (imageId) {
-      this.dbService.getFacesData(`IMAGE#${imageId}`).subscribe({
+      const key = `IMAGE#${imageId}`;
+      this.facesRequestKey = key;
+      this.dbService.getFacesData(key).subscribe({
         next: (response: FaceData[]) => {
-          this.faceData = response;
+          // Ignore late responses for previous images
+          if (this.facesRequestKey !== key) return;
+          this.faceData = response || [];
         },
         error: (error) => {
+          if (this.facesRequestKey !== key) return;
           console.error('Error fetching object details:', error);
+          this.faceData = [];
         }
       });
+    } else {
+      this.facesRequestKey = undefined;
+      this.faceData = [];
     }
   }
 
   loadCurrent() {
+    // Always fetch and show the HD image for the selected item
     this.isLoading = true;
     this.selectedFaceId = null;
+    this.faceData = [];
     this.resetView();
     const { fileName } = this.currentObjectInView;
-    this.fileService.downloadFiles(false, [fileName]).subscribe({
+    this.fileService.downloadFilesCached(false, [fileName]).subscribe({
       next: (response) => {
         this.currentObjectInView.fileUrl = response.signedUrls[fileName];
       },
@@ -153,6 +165,8 @@ export class ObjectViewerComponent {
     event?.stopPropagation();
     const dialogRef = this.dialog.open(FaceNameDialogComponent, {
       data: { currentName: face.faceName || '' },
+      width: '420px',
+      maxWidth: '92vw'
     });
     dialogRef.afterClosed().subscribe((faceName: string | undefined) => {
       if (!faceName) return;
@@ -188,6 +202,23 @@ export class ObjectViewerComponent {
 
   onBackPress() {
     this.dialogRef.close();
+  }
+
+  onImageError() {
+    // Likely an expired pre-signed URL; invalidate cache and refetch
+    const { fileName } = this.currentObjectInView;
+    if (!fileName) return;
+    this.fileService.invalidateCachedUrl(false, fileName);
+    this.isLoading = true;
+    this.fileService.downloadFilesCached(false, [fileName]).subscribe({
+      next: (response) => {
+        this.currentObjectInView.fileUrl = response.signedUrls[fileName];
+      },
+      error: (error) => {
+        console.error('Error refreshing image URL:', error);
+        this.isLoading = false;
+      }
+    });
   }
 
   ngOnDestroy() {
