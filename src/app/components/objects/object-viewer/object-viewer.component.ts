@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, ViewChild, inject, HostListener } from '@angular/core';
-import { MatChipsModule } from '@angular/material/chips';
+import { MatChipsModule, MatChipSelectionChange } from '@angular/material/chips';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { FaceData } from '../../../models/FaceData';
 import { FileItem } from '../../../models/FileItem';
@@ -138,11 +138,11 @@ export class ObjectViewerComponent {
     this.selectedFaceId = null;
     this.faceData = [];
     this.isAutoFit = true;
-    this.resetView();
     const { fileName } = this.currentObjectInView;
     this.fileService.downloadFilesCached(false, [fileName]).subscribe({
       next: (response) => {
         this.currentObjectInView.fileUrl = response.signedUrls[fileName];
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error downloading file:', error);
@@ -306,11 +306,6 @@ export class ObjectViewerComponent {
     (event.target as HTMLElement).releasePointerCapture(event.pointerId);
   }
 
-  resetView() {
-    this.zoom = 1;
-    this.centerImage();
-  }
-
   // Fit entire image into the viewport
   fitToScreen() {
     const img = this.imageRef?.nativeElement;
@@ -342,8 +337,8 @@ export class ObjectViewerComponent {
     const centerX = boxLeft + boxWidth / 2;
     const centerY = boxTop + boxHeight / 2;
 
-    // Zoom slightly in when focusing
-    const targetZoom = Math.min(Math.max(this.zoom, 1.5), this.maxZoom);
+    // Zoom slightly in when focusing (a bit less aggressive)
+    const targetZoom = Math.min(Math.max(this.zoom, 1.25), this.maxZoom);
     const scale = targetZoom / this.zoom;
     // Adjust translate to center the face
     const viewportRect = viewport.getBoundingClientRect();
@@ -369,6 +364,17 @@ export class ObjectViewerComponent {
     const imgH = img.clientHeight;
     this.translateX = (viewportRect.width - this.zoom * imgW) / 2;
     this.translateY = (viewportRect.height - this.zoom * imgH) / 2;
+  }
+
+  onFaceSelectionChange(event: MatChipSelectionChange, face: FaceData) {
+    if (event.selected) {
+      this.selectedFaceId = face.SK;
+      this.focusFace(face);
+    } else {
+      this.selectedFaceId = null;
+      this.isAutoFit = true;
+      this.fitToScreen();
+    }
   }
 
   trackByFace(face: FaceData) {
