@@ -50,7 +50,7 @@ export class ObjectViewerComponent {
 
   // Zoom / pan state
   zoom = 1;
-  minZoom = 0.5;
+  minZoom = 0.1;
   maxZoom = 5;
   translateX = 0;
   translateY = 0;
@@ -60,6 +60,7 @@ export class ObjectViewerComponent {
 
   // Selection state
   selectedFaceId: string | null = null;
+  private isAutoFit = true;
 
   ngOnInit() {
     const data = this.dialogData;
@@ -77,7 +78,7 @@ export class ObjectViewerComponent {
     this.loadCurrent();
     this.resizeSub = fromEvent(window, 'resize')
       .pipe(debounceTime(200))
-      .subscribe(() => this.triggerReflow());
+      .subscribe(() => this.onViewportResize());
 
     // Observe image size changes to keep overlays aligned
     this.resizeObserver = new ResizeObserver(() => this.triggerReflow());
@@ -88,12 +89,24 @@ export class ObjectViewerComponent {
 
   onImageLoad(): void {
     this.isLoading = false;
-    this.centerImage();
+    if (this.isAutoFit) {
+      this.fitToScreen();
+    } else {
+      this.centerImage();
+    }
     this.triggerReflow();
   }
 
   triggerReflow() {
     this.faceData = [...this.faceData];
+  }
+
+  private onViewportResize() {
+    // When auto-fit is active, recompute fit on resize
+    if (this.isAutoFit) {
+      this.fitToScreen();
+    }
+    this.triggerReflow();
   }
 
   getFacesData() {
@@ -124,6 +137,7 @@ export class ObjectViewerComponent {
     this.isLoading = true;
     this.selectedFaceId = null;
     this.faceData = [];
+    this.isAutoFit = true;
     this.resetView();
     const { fileName } = this.currentObjectInView;
     this.fileService.downloadFilesCached(false, [fileName]).subscribe({
@@ -200,6 +214,15 @@ export class ObjectViewerComponent {
     };
   }
 
+  // Keep tooltips readable regardless of zoom by counter-scaling
+  get tooltipStyle() {
+    const scale = this.zoom ? 1 / this.zoom : 1;
+    return {
+      transform: `translate(-50%, -150%) scale(${scale})`,
+      transformOrigin: 'center bottom'
+    } as { [key: string]: string };
+  }
+
   onBackPress() {
     this.dialogRef.close();
   }
@@ -239,6 +262,7 @@ export class ObjectViewerComponent {
   // Zoom with wheel
   onWheel(event: WheelEvent) {
     event.preventDefault();
+    this.isAutoFit = false;
     const viewport = this.viewportRef?.nativeElement;
     if (!viewport) return;
 
@@ -261,6 +285,7 @@ export class ObjectViewerComponent {
 
   onPointerDown(event: PointerEvent) {
     this.isPanning = true;
+    this.isAutoFit = false;
     this.lastPanX = event.clientX;
     this.lastPanY = event.clientY;
     (event.target as HTMLElement).setPointerCapture(event.pointerId);
@@ -286,9 +311,21 @@ export class ObjectViewerComponent {
     this.centerImage();
   }
 
-  // Fit is equivalent to reset in current responsive layout
+  // Fit entire image into the viewport
   fitToScreen() {
-    this.resetView();
+    const img = this.imageRef?.nativeElement;
+    const viewport = this.viewportRef?.nativeElement;
+    if (!img || !viewport) return;
+
+    const viewportRect = viewport.getBoundingClientRect();
+    const imgW = img.clientWidth;
+    const imgH = img.clientHeight;
+    if (!imgW || !imgH || !viewportRect.width || !viewportRect.height) return;
+
+    const fitZoom = Math.min(viewportRect.width / imgW, viewportRect.height / imgH);
+    this.zoom = Math.min(this.maxZoom, Math.max(fitZoom, this.minZoom));
+    this.centerImage();
+    this.isAutoFit = true;
   }
 
   // Center view on a specific face

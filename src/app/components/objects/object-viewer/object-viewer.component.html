@@ -7,12 +7,12 @@
       (pointerdown)="onPointerDown($event)" (pointermove)="onPointerMove($event)" (pointerup)="onPointerUp($event)" (pointercancel)="onPointerUp($event)"
       (lostpointercapture)="onPointerUp($event)">
       <div #content class="absolute top-0 left-0" [ngStyle]="contentTransform">
-        <img #image class="block w-full h-auto select-none" [alt]="currentObjectInView.fileName" decoding="async" fetchpriority="high"
+        <img #image class="block max-w-none h-auto select-none" [alt]="currentObjectInView.fileName" decoding="async" fetchpriority="high"
           [src]="currentObjectInView.fileUrl" (load)="onImageLoad()" (error)="onImageError()" />
 
         @for (face of faceData; track trackByFace(face)) {
         <div class="absolute z-10 face-box" [ngStyle]="getBoxStyle(face)">
-          <div class="tooltip-box" (click)="editFaceName(face, $event)">
+          <div class="tooltip-box" [ngStyle]="tooltipStyle" (click)="editFaceName(face, $event)">
             {{ face.faceName || '?' }}
             <div class="tooltip-arrow"></div>
           </div>
