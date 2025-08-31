@@ -24,6 +24,7 @@ export class LoginComponent implements OnInit {
 
   loginForm!: FormGroup;
   isLoading: boolean = false;
+  showPassword: boolean = false;
 
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
@@ -98,5 +99,9 @@ export class LoginComponent implements OnInit {
     } catch (error) {
       console.error('Error logging in:', error);
     }
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 }
