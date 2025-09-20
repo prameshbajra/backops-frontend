@@ -1,68 +1,101 @@
 <div class="px-10 py-16">
-  @for (group of groupedFiles; track group.key) {
-  <div class="flex justify-between items-center pt-8 pb-4">
-    <h2 class="text-xl dark:text-gray-400">
-      {{ group.key | date:'longDate' }}
-    </h2>
-    <div class="flex justify-end items-center gap-2">
-      <label class="text-sm text-gray-600 dark:text-gray-400 cursor-pointer select-none" (click)="toggleGroupSelection(group, null)">
-        Select All
-      </label>
-      <div class="flex relative">
-        <input type="checkbox" [checked]="isGroupFullySelected(group)" [indeterminate]="isGroupPartiallySelected(group)"
-          (change)="toggleGroupSelection(group, $event)"
-          class="w-5 h-5 sm:w-6 sm:h-6 rounded-full appearance-none border-2 border-gray-500 bg-white cursor-pointer transition-colors checked:bg-blue-500 checked:border-blue-500"
-          [ngClass]="isGroupFullySelected(group) ? 'opacity-100' : 'opacity-60'">
-        <span class="absolute top-0 left-0 w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-white pointer-events-none"
-          [ngClass]="{ 'opacity-100': isGroupFullySelected(group), 'opacity-0': !isGroupFullySelected(group) }">
-          ✔
-        </span>
+  <div class="flex flex-col gap-10">
+    <div class="flex-1 min-w-0 w-full">
+      @if(monthGroups.length > 0) {
+      @for (month of monthGroups; track month.monthKey) {
+      <section #monthSection [attr.id]="month.elementId" class="month-section pb-8 mt-8 first:mt-0">
+        <div class="flex items-center justify-between mt-2 mb-2">
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+            {{ month.label }}
+          </h2>
+        </div>
+
+        @for (group of month.days; track group.key) {
+        <div class="pt-6">
+          <div class="flex justify-between items-center pb-4">
+            <h3 class="text-xl dark:text-gray-400">
+              {{ group.key | date:'longDate' }}
+            </h3>
+            <div class="flex justify-end items-center gap-2">
+              <label class="text-sm text-gray-600 dark:text-gray-400 cursor-pointer select-none" (click)="toggleGroupSelection(group, null)">
+                Select All
+              </label>
+              <div class="flex relative">
+                <input type="checkbox" [checked]="isGroupFullySelected(group)" [indeterminate]="isGroupPartiallySelected(group)"
+                  (change)="toggleGroupSelection(group, $event)"
+                  class="w-5 h-5 sm:w-6 sm:h-6 rounded-full appearance-none border-2 border-gray-500 bg-white cursor-pointer transition-colors checked:bg-blue-500 checked:border-blue-500"
+                  [ngClass]="isGroupFullySelected(group) ? 'opacity-100' : 'opacity-60'">
+                <span class="absolute top-0 left-0 w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-white pointer-events-none"
+                  [ngClass]="{ 'opacity-100': isGroupFullySelected(group), 'opacity-0': !isGroupFullySelected(group) }">
+                  ✔
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="object-container flex justify-start items-center gap-2 flex-wrap" (click)="onObjectAreaClick($event)">
+            @for (file of group.files; track $index) {
+            <div class="relative group w-24 h-24 sm:w-48 sm:h-48" [ngClass]="{ 'outline outline-2 outline-blue-500 rounded-lg': file.isSelected }">
+              <input type="checkbox" (click)="toggleSelection(file)" [checked]="file.isSelected"
+                class="z-10 absolute top-2 left-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full appearance-none border-2 border-gray-500 bg-white cursor-pointer transition-colors checked:bg-blue-500 checked:border-blue-500"
+                [ngClass]="file.isSelected ? 'opacity-100' : 'opacity-60'">
+              <span class="z-10 absolute top-2 left-2 w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-white pointer-events-none"
+                [ngClass]="{ 'opacity-100': file.isSelected, 'opacity-0': !file.isSelected }">
+                ✔
+              </span>
+              <img (click)="selectObject(file)" class="w-full h-full object-cover rounded-lg transition-transform" [ngClass]="{ 'scale-95': file.isSelected }"
+                [src]="file.fileUrl" alt="" />
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </section>
+      }
+      } @else {
+      @if(nextPaginationToken === null && files.length === 0 && !areFilesLoading) {
+      <div class="w-full text-center py-16 sm:py-20">
+        <div class="text-gray-500 text-base sm:text-lg">
+          <mat-icon class="text-3xl mb-3 text-gray-300">folder_off</mat-icon>
+          <p>No files here 📂</p>
+        </div>
       </div>
-    </div>
-  </div>
-  <div class="object-container flex justify-start items-center gap-2 flex-wrap" (click)="onObjectAreaClick($event)">
-    @for (file of group.files; track $index) {
-    <div class="relative group w-24 h-24 sm:w-48 sm:h-48" [ngClass]="{ 'outline outline-2 outline-blue-500 rounded-lg': file.isSelected }">
-      <input type="checkbox" (click)="toggleSelection(file)" [checked]="file.isSelected"
-        class="z-10 absolute top-2 left-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full appearance-none border-2 border-gray-500 bg-white cursor-pointer transition-colors checked:bg-blue-500 checked:border-blue-500"
-        [ngClass]="file.isSelected ? 'opacity-100' : 'opacity-60'">
-      <span class="z-10 absolute top-2 left-2 w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-white pointer-events-none"
-        [ngClass]="{ 'opacity-100': file.isSelected, 'opacity-0': !file.isSelected }">
-        ✔
-      </span>
-      <img (click)="selectObject(file)" class="w-full h-full object-cover rounded-lg transition-transform" [ngClass]="{ 'scale-95': file.isSelected }"
-        [src]="file.fileUrl" alt="" />
-    </div>
-    }
-  </div>
-  } @empty {
-  @if(nextPaginationToken === null && files.length === 0 && !areFilesLoading) {
-  <div class="w-full text-center py-16 sm:py-20">
-    <div class="text-gray-500 text-base sm:text-lg">
-      <mat-icon class="text-3xl mb-3 text-gray-300">folder_off</mat-icon>
-      <p>No files here 📂</p>
-    </div>
-  </div>
-  }
-  }
+      }
+      }
 
-  @if(nextPaginationToken === null && files.length > 0 && !areFilesLoading) {
-  <div class="w-100 flex justify-center items-center my-20">
-    <h3 class="text-gray-500 text-base sm:text-lg">Woop! That's all 😁</h3>
-  </div>
-  }
+      @if(nextPaginationToken === null && files.length > 0 && !areFilesLoading) {
+      <div class="w-100 flex justify-center items-center my-20">
+        <h3 class="text-gray-500 text-base sm:text-lg">Woop! That's all 😁</h3>
+      </div>
+      }
 
-  @if(areFilesLoading) {
-  <app-loader></app-loader>
-  }
+      @if(areFilesLoading) {
+      <app-loader></app-loader>
+      }
+    </div>
+
+  </div>
 </div>
 
 <app-object-fab></app-object-fab>
 
+@if(monthMarkers.length > 0) {
+<div class="timeline-scrubber flex fixed top-1/2 right-2 sm:right-4 lg:right-6 -translate-y-1/2 flex-col items-end gap-2 sm:gap-3"
+  [class.timeline-scrubber--visible]="isTimelineVisible">
+  @for (marker of monthMarkers; track marker.monthKey; let i = $index) {
+  @if(isFirstMarkerOfYear(i)) {
+  <span class="timeline-year pr-1 text-right">{{ marker.year }}</span>
+  }
+  <button type="button" (click)="scrollToMonth(marker.elementId)" class="timeline-item timeline-item--scrubber rounded-full transition-colors text-right"
+    [ngClass]="{ 'timeline-item--active': marker.monthKey === currentMonthKey }">
+    {{ marker.label }}
+  </button>
+  }
+</div>
+}
 
 <div [@slideInOut]="slideState" class="z-20 fixed bottom-0 left-0 right-0 bg-gray-100 p-4 flex justify-center gap-4 dark:bg-gray-950">
   <button (click)="deleteSelectedFiles()" class="px-3 py-1 bg-red-500 text-white text-sm rounded flex items-center gap-2 hover:bg-red-700"
-    [disabled]="areFilesBeingDeleted || areFilesBeingDownloaded" style="min-width: 120px;"> <!-- Set a fixed or minimum width -->
+    [disabled]="areFilesBeingDeleted || areFilesBeingDownloaded" style="min-width: 120px;">
     <div class="flex items-center gap-2">
       @if(areFilesBeingDeleted) {
       <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

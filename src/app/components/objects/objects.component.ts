@@ -1,5 +1,4 @@
-
-import { Component, HostListener, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, QueryList, ViewChildren, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { FileItem } from '../../models/FileItem';
 import { DbService } from '../../services/db.service';
@@ -16,6 +15,28 @@ import { ObjectFabComponent } from './object-fab/object-fab.component';
 import { Router } from '@angular/router';
 import { ObjectViewerComponent } from './object-viewer/object-viewer.component';
 import { CommonModule } from '@angular/common';
+
+interface DayGroup {
+  key: string;
+  files: FileItem[];
+  monthKey: string;
+  monthLabel: string;
+  elementId: string;
+}
+
+interface MonthGroup {
+  monthKey: string;
+  label: string;
+  elementId: string;
+  days: DayGroup[];
+}
+
+interface MonthMarker {
+  monthKey: string;
+  label: string;
+  elementId: string;
+  year: string;
+}
 
 @Component({
   selector: 'app-objects',
@@ -42,7 +63,7 @@ import { CommonModule } from '@angular/common';
     ])
   ]
 })
-export class ObjectsComponent {
+export class ObjectsComponent implements AfterViewInit {
 
   fileUploadService: FileService = inject(FileService);
   dbService: DbService = inject(DbService);
@@ -53,23 +74,36 @@ export class ObjectsComponent {
   shouldUpdateObjectListSubscription!: Subscription;
 
   files: FileItem[] = [];
-  groupedFiles: { key: string; files: FileItem[] }[] = [];
+  groupedFiles: DayGroup[] = [];
+  monthGroups: MonthGroup[] = [];
+  monthMarkers: MonthMarker[] = [];
+  currentMonthKey: string | null = null;
   nextPaginationToken: string | null = null;
   areFilesLoading: boolean = false;
   areFilesBeingDeleted: boolean = false;
   areFilesBeingDownloaded: boolean = false;
   timestampFilterData: string | null = null;
+  isTimelineVisible = false;
 
+  @ViewChildren('monthSection', { read: ElementRef })
+  monthSections!: QueryList<ElementRef<HTMLElement>>;
 
-  @HostListener('window:scroll', [])
-  onWindowScroll(): void {
-    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
-    const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+  private monthSectionElements: HTMLElement[] = [];
+  private monthSectionsChangeSub?: Subscription;
+  private timelineHideTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
-    if (scrollPosition >= windowHeight && !this.areFilesLoading) {
-      console.log('Scrolled to the bottom of the page!');
-      this.load();
+  ngAfterViewInit(): void {
+    if (this.monthSections) {
+      this.monthSectionsChangeSub = this.monthSections.changes.subscribe(() => {
+        this.updateMonthSectionCache();
+        this.updateActiveMonth();
+      });
     }
+
+    setTimeout(() => {
+      this.updateMonthSectionCache();
+      this.updateActiveMonth();
+    });
   }
 
   ngOnInit() {
@@ -95,6 +129,20 @@ export class ObjectsComponent {
     });
   }
 
+  @HostListener('window:scroll', [])
+  onWindowScroll(): void {
+    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+
+    if (scrollPosition >= windowHeight && !this.areFilesLoading) {
+      console.log('Scrolled to the bottom of the page!');
+      this.load();
+    }
+
+    this.updateActiveMonth();
+    this.revealTimelineScrubber();
+  }
+
   get slideState() {
     return this.getSelectedFilesCount() > 0 ? 'in' : 'out';
   }
@@ -108,9 +156,23 @@ export class ObjectsComponent {
       groups[date].push(file);
       return groups;
     }, {});
+
     this.groupedFiles = Object.keys(grouped)
       .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
-      .map(key => ({ key, files: grouped[key] }));
+      .map((key) => {
+        const monthKey = moment(key).format('YYYY-MM');
+        const monthLabel = moment(key).format('MMMM YYYY');
+        const elementId = `month-${monthKey}`;
+        return {
+          key,
+          files: grouped[key],
+          monthKey,
+          monthLabel,
+          elementId
+        } as DayGroup;
+      });
+
+    this.buildMonthGroups();
   }
 
   getSelectedFilesCount(): number {
@@ -174,7 +236,6 @@ export class ObjectsComponent {
       next: (data) => {
         this.files = [...this.files, ...data.items];
         this.nextPaginationToken = data.nextToken;
-        // Fetch signed URLs for new files
         const fileNames = data.items.map((file) => Utility.checkFilenameReplaceExtension(file.fileName));
         if (fileNames.length > 0) {
           this.fileUploadService.downloadFilesCached(true, fileNames).subscribe({
@@ -220,16 +281,16 @@ export class ObjectsComponent {
     file.isSelected = !file.isSelected;
   }
 
-  isGroupFullySelected(group: { key: string; files: FileItem[] }): boolean {
+  isGroupFullySelected(group: DayGroup): boolean {
     return group.files.every((file: FileItem) => file.isSelected);
   }
 
-  isGroupPartiallySelected(group: { key: string; files: FileItem[] }): boolean {
+  isGroupPartiallySelected(group: DayGroup): boolean {
     const selectedCount = group.files.filter((file: FileItem) => file.isSelected).length;
     return selectedCount > 0 && selectedCount < group.files.length;
   }
 
-  toggleGroupSelection(group: { key: string; files: FileItem[] }, event: Event | null): void {
+  toggleGroupSelection(group: DayGroup, event: Event | null): void {
     if (event === null) {
       const shouldSelect = !this.isGroupFullySelected(group);
       this.performGroupToggle(group, shouldSelect);
@@ -240,14 +301,138 @@ export class ObjectsComponent {
     this.performGroupToggle(group, checkbox.checked);
   }
 
-  private performGroupToggle(group: { key: string; files: FileItem[] }, shouldSelect: boolean): void {
+  private performGroupToggle(group: DayGroup, shouldSelect: boolean): void {
     group.files.forEach((file: FileItem) => {
       file.isSelected = shouldSelect;
     });
   }
 
+  scrollToMonth(elementId: string): void {
+    const target = document.getElementById(elementId);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    this.revealTimelineScrubber();
+  }
+
+  private buildMonthGroups(): void {
+    const monthMap = new Map<string, MonthGroup>();
+
+    this.groupedFiles.forEach((group) => {
+      let monthGroup = monthMap.get(group.monthKey);
+      if (!monthGroup) {
+        monthGroup = {
+          monthKey: group.monthKey,
+          label: group.monthLabel,
+          elementId: group.elementId,
+          days: []
+        };
+        monthMap.set(group.monthKey, monthGroup);
+      }
+      monthGroup.days.push(group);
+    });
+
+    this.monthGroups = Array.from(monthMap.values());
+    this.monthMarkers = this.monthGroups.map(({ monthKey, label, elementId }) => ({
+      monthKey,
+      label,
+      elementId,
+      year: moment(monthKey, 'YYYY-MM').format('YYYY')
+    }));
+
+    if (!this.monthMarkers.length) {
+      this.currentMonthKey = null;
+      this.isTimelineVisible = false;
+      this.clearTimelineHideTimeout();
+    } else if (!this.currentMonthKey || !this.monthMarkers.some(marker => marker.monthKey === this.currentMonthKey)) {
+      this.currentMonthKey = this.monthMarkers[0].monthKey;
+    }
+
+    const scheduleUpdate = () => {
+      this.updateMonthSectionCache();
+      this.updateActiveMonth();
+    };
+
+    if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
+      window.requestAnimationFrame(scheduleUpdate);
+    } else {
+      setTimeout(scheduleUpdate, 0);
+    }
+  }
+
+  isFirstMarkerOfYear(index: number): boolean {
+    if (index === 0) {
+      return true;
+    }
+    const current = this.monthMarkers[index];
+    const previous = this.monthMarkers[index - 1];
+    return current.year !== previous.year;
+  }
+
+  private updateMonthSectionCache(): void {
+    if (!this.monthSections) {
+      return;
+    }
+
+    this.monthSectionElements = this.monthSections.toArray().map((ref) => ref.nativeElement);
+  }
+
+  private updateActiveMonth(): void {
+    if (!this.monthSectionElements.length || !this.monthGroups.length) {
+      return;
+    }
+
+    const viewportOffset = 120;
+    let activeMonthKey = this.monthGroups[0].monthKey;
+
+    for (let index = 0; index < this.monthSectionElements.length; index++) {
+      const section = this.monthSectionElements[index];
+      const rect = section.getBoundingClientRect();
+      if (rect.bottom >= viewportOffset && rect.top <= viewportOffset) {
+        activeMonthKey = this.monthGroups[index].monthKey;
+        break;
+      }
+      if (rect.top > viewportOffset) {
+        break;
+      }
+    }
+
+    if (this.currentMonthKey !== activeMonthKey) {
+      this.currentMonthKey = activeMonthKey;
+    }
+  }
+
+  private revealTimelineScrubber(): void {
+    if (!this.monthMarkers.length) {
+      return;
+    }
+
+    if (!this.isTimelineVisible) {
+      this.isTimelineVisible = true;
+    }
+
+    this.resetTimelineHideTimeout();
+  }
+
+  private resetTimelineHideTimeout(): void {
+    this.clearTimelineHideTimeout();
+    this.timelineHideTimeoutId = setTimeout(() => {
+      this.isTimelineVisible = false;
+      this.timelineHideTimeoutId = null;
+    }, 2000);
+  }
+
+  private clearTimelineHideTimeout(): void {
+    if (this.timelineHideTimeoutId !== null) {
+      clearTimeout(this.timelineHideTimeoutId);
+      this.timelineHideTimeoutId = null;
+    }
+  }
+
   ngOnDestroy() {
     this.shouldUpdateObjectListSubscription?.unsubscribe();
     this.applyFilterObjectListSubscription?.unsubscribe();
+    this.monthSectionsChangeSub?.unsubscribe();
+    this.clearTimelineHideTimeout();
   }
 }
