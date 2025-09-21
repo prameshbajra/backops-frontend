@@ -3,18 +3,19 @@ import { Subscription } from 'rxjs';
 import { FileItem } from '../../models/FileItem';
 import { DbService } from '../../services/db.service';
 
-import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { FileService } from '../../services/file.service';
 
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import moment from 'moment';
 import { Utility } from '../../utility';
 import { LoaderComponent } from '../shared/loader/loader.component';
 import { ObjectFabComponent } from './object-fab/object-fab.component';
-import { Router } from '@angular/router';
 import { ObjectViewerComponent } from './object-viewer/object-viewer.component';
-import { CommonModule } from '@angular/common';
+import { ObjectsTimelineComponent } from './timeline/objects-timeline.component';
+import { ObjectsActionsComponent } from './actions/object-actions.component';
 
 interface DayGroup {
   key: string;
@@ -45,23 +46,12 @@ interface MonthMarker {
     MatIconModule,
     MatDialogModule,
     LoaderComponent,
-    ObjectFabComponent
+    ObjectFabComponent,
+    ObjectsTimelineComponent,
+    ObjectsActionsComponent
   ],
   templateUrl: 'objects.component.html',
-  styleUrl: './objects.component.css',
-  animations: [
-    trigger('slideInOut', [
-      state('in', style({ transform: 'translateY(0)' })),
-      state('out', style({ transform: 'translateY(100%)' })),
-      transition('out => in', [
-        style({ transform: 'translateY(100%)' }),
-        animate('300ms ease-in-out')
-      ]),
-      transition('in => out', [
-        animate('300ms ease-in-out', style({ transform: 'translateY(100%)' }))
-      ])
-    ])
-  ]
+  styleUrl: './objects.component.css'
 })
 export class ObjectsComponent implements AfterViewInit {
 
@@ -141,10 +131,6 @@ export class ObjectsComponent implements AfterViewInit {
 
     this.updateActiveMonth();
     this.revealTimelineScrubber();
-  }
-
-  get slideState() {
-    return this.getSelectedFilesCount() > 0 ? 'in' : 'out';
   }
 
   groupFiles() {
@@ -358,15 +344,6 @@ export class ObjectsComponent implements AfterViewInit {
     } else {
       setTimeout(scheduleUpdate, 0);
     }
-  }
-
-  isFirstMarkerOfYear(index: number): boolean {
-    if (index === 0) {
-      return true;
-    }
-    const current = this.monthMarkers[index];
-    const previous = this.monthMarkers[index - 1];
-    return current.year !== previous.year;
   }
 
   private updateMonthSectionCache(): void {

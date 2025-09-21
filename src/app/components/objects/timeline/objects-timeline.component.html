@@ -1,0 +1,14 @@
+@if(monthMarkers.length > 0) {
+<div class="timeline-scrubber flex fixed top-1/2 right-2 sm:right-4 lg:right-6 -translate-y-1/2 flex-col items-end gap-2 sm:gap-3"
+  [class.timeline-scrubber--visible]="isVisible">
+  @for (marker of monthMarkers; track marker.monthKey; let i = $index) {
+  @if(isFirstMarkerOfYear(i)) {
+  <span class="timeline-year pr-1 text-right">{{ marker.year }}</span>
+  }
+  <button type="button" (click)="onSelectMonth(marker.elementId)" class="timeline-item timeline-item--scrubber rounded-full transition-colors text-right"
+    [ngClass]="{ 'timeline-item--active': marker.monthKey === currentMonthKey }">
+    {{ marker.label }}
+  </button>
+  }
+</div>
+}
