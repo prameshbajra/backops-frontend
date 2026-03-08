@@ -4,10 +4,13 @@
   @if (isUploading) {
     <div [@slideUpload] class="flex flex-col sm:flex-row items-center gap-4 w-full mb-4 sm:mb-0">
       <p class="text-xs sm:text-sm text-gray-600 whitespace-nowrap">
-        Uploading: {{ completedFiles }}/{{ totalFiles }} files
+        Uploading: {{ completedFiles + failedFiles }}/{{ totalFiles }} files
+        @if (failedFiles > 0) {
+          <span class="text-red-500">({{ failedFiles }} failed)</span>
+        }
       </p>
       <div class="w-full sm:w-80 bg-gray-200 rounded-full h-2 sm:h-2.5">
-        <div class="bg-blue-600 h-2 sm:h-2.5 rounded-full" [style.width]="(completedFiles / totalFiles * 100) + '%'">
+        <div class="bg-blue-600 h-2 sm:h-2.5 rounded-full" [style.width]="((completedFiles + failedFiles) / totalFiles * 100) + '%'">
         </div>
       </div>
     </div>

@@ -180,7 +180,8 @@ export class ObjectViewerComponent {
     const dialogRef = this.dialog.open(FaceNameDialogComponent, {
       data: { currentName: face.faceName || '' },
       width: '420px',
-      maxWidth: '92vw'
+      maxWidth: '92vw',
+      panelClass: 'glass-dialog-panel'
     });
     dialogRef.afterClosed().subscribe((faceName: string | undefined) => {
       if (!faceName) return;

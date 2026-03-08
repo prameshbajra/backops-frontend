@@ -6,6 +6,7 @@
 html,
 body {
   height: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -13,10 +14,18 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  .mat-bottom-sheet-container {
-    background: #374151 !important;
+/* Ensure dialogs are responsive on small screens */
+@media (max-width: 640px) {
+  .glass-dialog-panel,
+  .cdk-overlay-pane {
+    max-width: calc(100vw - 2rem) !important;
   }
+}
+
+@media (prefers-color-scheme: dark) {
+.mat-bottom-sheet-container {
+  background: #374151 !important;
+}
 }
 
 ::ng-deep .mat-chip {
@@ -25,4 +34,23 @@ body {
   font-size: 0.75rem;
   background-color: rgba(0, 123, 255, 0.85);
   color: white;
+}
+
+.glass-dialog-panel .mdc-dialog__surface {
+  background-color: transparent;
+  box-shadow: none;
+  padding: 0;
+  overflow: visible;
+  margin: 0 auto;
+}
+
+.glass-dialog-panel .mat-mdc-dialog-title,
+.glass-dialog-panel .mat-mdc-dialog-content,
+.glass-dialog-panel .mat-mdc-dialog-actions {
+  padding: 0;
+}
+
+.glass-dialog-panel .mat-mdc-dialog-content {
+  display: flex;
+  justify-content: center;
 }

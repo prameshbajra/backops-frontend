@@ -27,9 +27,12 @@ export class ObjectsActionsComponent {
   @Input() selectedCount = 0;
   @Input() areFilesBeingDeleted = false;
   @Input() areFilesBeingDownloaded = false;
+  @Input() areFilesBeingAssigned = false;
 
   @Output() deleteSelected = new EventEmitter<void>();
   @Output() downloadSelected = new EventEmitter<void>();
+  @Output() addToAlbum = new EventEmitter<void>();
+  @Output() deselectAll = new EventEmitter<void>();
 
   get slideState(): 'in' | 'out' {
     return this.selectedCount > 0 ? 'in' : 'out';
@@ -43,19 +46,27 @@ export class ObjectsActionsComponent {
     this.downloadSelected.emit();
   }
 
-  get actionLabel(): string {
-    if (this.areFilesBeingDeleted) {
-      return 'Deleting...';
-    }
-
-    return this.selectedCount > 1 ? 'Delete all' : 'Delete';
+  onAddToAlbumClick(): void {
+    this.addToAlbum.emit();
   }
 
-  get downloadLabel(): string {
-    return this.areFilesBeingDownloaded ? 'Downloading...' : `Download (${this.selectedCount})`;
+  onDeselectAllClick(): void {
+    this.deselectAll.emit();
+  }
+
+  get deleteLabel(): string {
+    return this.areFilesBeingDeleted ? 'Deleting...' : 'Delete';
+  }
+
+  get dlLabel(): string {
+    return this.areFilesBeingDownloaded ? 'Saving...' : 'Download';
+  }
+
+  get albumLabel(): string {
+    return this.areFilesBeingAssigned ? 'Adding...' : 'Album';
   }
 
   get actionsDisabled(): boolean {
-    return this.areFilesBeingDeleted || this.areFilesBeingDownloaded;
+    return this.areFilesBeingDeleted || this.areFilesBeingDownloaded || this.areFilesBeingAssigned;
   }
 }

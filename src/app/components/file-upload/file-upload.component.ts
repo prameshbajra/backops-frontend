@@ -1,7 +1,7 @@
 import { animate, style, transition, trigger } from '@angular/animations';
 
 import { Component, inject, OnInit } from '@angular/core';
-import { from, mergeMap } from 'rxjs';
+import { catchError, from, mergeMap, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { FileService } from '../../services/file.service';
 import { Utility } from '../../utility';
@@ -36,6 +36,7 @@ export class FileUploadComponent {
 
   totalFiles: number = 0;
   completedFiles: number = 0;
+  failedFiles: number = 0;
   isUploading: boolean = false;
 
   fileUploadService: FileService = inject(FileService);
@@ -44,21 +45,34 @@ export class FileUploadComponent {
     const files: File[] = event.target.files;
     this.totalFiles = files.length;
     this.completedFiles = 0;
+    this.failedFiles = 0;
     this.isUploading = true;
 
     const concurrentUploads = environment.CONCURRENT_UPLOADS;
 
-    from(files).pipe(mergeMap(file => this.uploadSingleFile(file), concurrentUploads)).subscribe({
+    from(files).pipe(
+      mergeMap(file =>
+        from(this.uploadSingleFile(file)).pipe(
+          catchError(error => {
+            this.failedFiles++;
+            console.error('Error uploading file:', file.name, error);
+            return of(null);
+          })
+        ),
+        concurrentUploads
+      )
+    ).subscribe({
       next: (result) => {
-        this.completedFiles++;
-        console.log('File uploaded successfully', result);
-      },
-      error: (error) => {
-        alert('Error during file upload. Please try again.');
-        console.error('Error during file upload', error);
+        if (result !== null) {
+          this.completedFiles++;
+          console.log('File uploaded successfully', result);
+        }
       },
       complete: () => {
         this.isUploading = false;
+        if (this.failedFiles > 0) {
+          alert(`${this.failedFiles} file(s) failed to upload. ${this.completedFiles} file(s) uploaded successfully.`);
+        }
         this.fileUploadService.setShouldUpdateObjectList(true);
       }
     });

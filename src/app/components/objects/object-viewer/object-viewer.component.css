@@ -56,22 +56,32 @@
   background: rgba(17, 24, 39, 0.6);
   color: #fff;
   border-radius: 9999px;
-  padding: 10px;
+  padding: 12px;
   border: none;
   cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.nav-btn.left { left: 12px; }
-.nav-btn.right { right: 12px; }
+.nav-btn.left { left: 8px; }
+.nav-btn.right { right: 8px; }
 .nav-btn[disabled] {
   opacity: 0.3;
   cursor: default;
 }
 
+@media (min-width: 640px) {
+  .nav-btn.left { left: 12px; }
+  .nav-btn.right { right: 12px; }
+}
+
 /* Floating tool buttons */
 .tool-fab {
   position: absolute;
-  right: 12px;
-  bottom: 12px;
+  right: 8px;
+  bottom: 8px;
   display: flex;
   gap: 8px;
 }
@@ -79,8 +89,20 @@
   background: rgba(17, 24, 39, 0.6);
   color: #fff;
   border-radius: 9999px;
-  padding: 8px;
+  padding: 10px;
   border: none;
   cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .tool-btn:hover, .nav-btn:hover { background: rgba(17, 24, 39, 0.8); }
+
+@media (min-width: 640px) {
+  .tool-fab {
+    right: 12px;
+    bottom: 12px;
+  }
+}

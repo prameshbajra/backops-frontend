@@ -1,11 +1,13 @@
 import { AfterViewInit, Component, ElementRef, HostListener, QueryList, ViewChildren, inject } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
+import { finalize, map, switchMap } from 'rxjs/operators';
 import { FileItem } from '../../models/FileItem';
 import { DbService } from '../../services/db.service';
 
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { FileService } from '../../services/file.service';
+import { AlbumService } from '../../services/album.service';
 
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -16,6 +18,7 @@ import { ObjectFabComponent } from './object-fab/object-fab.component';
 import { ObjectViewerComponent } from './object-viewer/object-viewer.component';
 import { ObjectsTimelineComponent } from './timeline/objects-timeline.component';
 import { ObjectsActionsComponent } from './actions/object-actions.component';
+import { AddToAlbumDialogComponent, AddToAlbumDialogResult } from './add-to-album-dialog/add-to-album-dialog.component';
 
 interface DayGroup {
   key: string;
@@ -59,6 +62,7 @@ export class ObjectsComponent implements AfterViewInit {
   dbService: DbService = inject(DbService);
   router: Router = inject(Router);
   dialog: MatDialog = inject(MatDialog);
+  albumService: AlbumService = inject(AlbumService);
 
   applyFilterObjectListSubscription!: Subscription;
   shouldUpdateObjectListSubscription!: Subscription;
@@ -72,6 +76,7 @@ export class ObjectsComponent implements AfterViewInit {
   areFilesLoading: boolean = false;
   areFilesBeingDeleted: boolean = false;
   areFilesBeingDownloaded: boolean = false;
+  areFilesBeingAssigned: boolean = false;
   timestampFilterData: string | null = null;
   isTimelineVisible = false;
 
@@ -165,6 +170,10 @@ export class ObjectsComponent implements AfterViewInit {
     return this.files.filter(file => file.isSelected).length;
   }
 
+  deselectAllFiles(): void {
+    this.files.forEach(file => file.isSelected = false);
+  }
+
   onObjectAreaClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
     if (target.tagName.includes('INPUT') || target.tagName.includes('IMG')) {
@@ -210,6 +219,60 @@ export class ObjectsComponent implements AfterViewInit {
     });
   }
 
+  addSelectedFilesToAlbum(): void {
+    if (this.areFilesBeingAssigned) {
+      return;
+    }
+
+    const selectedFiles = this.files.filter(file => file.isSelected);
+    if (!selectedFiles.length) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(AddToAlbumDialogComponent, {
+      maxWidth: '480px',
+      width: '100%',
+      panelClass: 'glass-dialog-panel',
+      data: { selectedCount: selectedFiles.length }
+    });
+
+    dialogRef.afterClosed().subscribe((result: AddToAlbumDialogResult | undefined) => {
+      if (!result) {
+        return;
+      }
+
+      const filesToAssign = [...selectedFiles];
+      let album$: Observable<{ albumId: string; albumName: string }>;
+
+      if (result.type === 'existing') {
+        album$ = of({ albumId: result.albumId, albumName: result.albumName });
+      } else {
+        album$ = this.albumService.createAlbum(result.albumName);
+      }
+
+      this.areFilesBeingAssigned = true;
+
+      // TODO: Is this really necessary to use switchMap here?
+      album$.pipe(
+        switchMap((album) =>
+          this.albumService.assignItemsToAlbum(album.albumId, filesToAssign).pipe(
+            map(() => album)
+          )
+        ),
+        finalize(() => {
+          this.areFilesBeingAssigned = false;
+        })
+      ).subscribe({
+        next: () => {
+          this.files.forEach(file => file.isSelected = false);
+        },
+        error: (error) => {
+          console.error('Error assigning files to album', error);
+        }
+      });
+    });
+  }
+
   load(): void {
     this.areFilesLoading = true;
     if (this.nextPaginationToken === null && this.files.length > 0) {
@@ -227,12 +290,11 @@ export class ObjectsComponent implements AfterViewInit {
           this.fileUploadService.downloadFilesCached(true, fileNames).subscribe({
             next: (response) => {
               const signedUrls = response.signedUrls;
-              this.files.forEach((file) => {
+              data.items.forEach((file) => {
                 const fileName = Utility.checkFilenameReplaceExtension(file.fileName);
                 if (signedUrls[fileName]) {
                   file.fileUrl = signedUrls[fileName];
                 }
-                file.isSelected = false;
               });
               this.groupFiles();
               this.areFilesLoading = false;

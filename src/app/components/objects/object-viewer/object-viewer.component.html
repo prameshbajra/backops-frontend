@@ -49,18 +49,18 @@
     </div>
   </div>
 
-  <div class="relative bg-white dark:bg-gray-800 w-full lg:w-80 p-4 border-t lg:border-t-0 lg:border-l border-gray-300 dark:border-gray-700 overflow-y-auto">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Image Details</h2>
+  <div class="relative bg-white dark:bg-gray-800 w-full lg:w-80 p-3 sm:p-4 border-t lg:border-t-0 lg:border-l border-gray-300 dark:border-gray-700 overflow-y-auto max-h-[40vh] lg:max-h-none">
+    <div class="flex items-center justify-between mb-3 sm:mb-4">
+      <h2 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-200">Image Details</h2>
       <button (click)="onBackPress()"
-        class="top-4 right-4 z-20 bg-gray-900 hover:bg-gray-700 text-white p-3 rounded-full shadow-md transform transition-transform duration-300 hover:scale-105">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        class="z-20 bg-gray-900 hover:bg-gray-700 text-white p-2.5 sm:p-3 rounded-full shadow-md transform transition-transform duration-300 hover:scale-105 min-w-[44px] min-h-[44px] flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
     </div>
 
-    <p class="text-sm text-gray-600 dark:text-gray-300">
+    <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 break-all">
       Filename: {{ currentObjectInView.fileName }}<br />
       File Size: {{ currentObjectInView.fileSize }}<br />
       Image ID: {{ currentObjectInView.imageId || 'N/A' }}<br />

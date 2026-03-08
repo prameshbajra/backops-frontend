@@ -1,30 +1,63 @@
-<div [@slideInOut]="slideState" class="z-20 fixed bottom-0 left-0 right-0 bg-gray-100 p-4 flex justify-center gap-4 dark:bg-gray-950">
-  <button (click)="onDeleteClick()" class="px-3 py-1 bg-red-500 text-white text-sm rounded flex items-center gap-2 hover:bg-red-700"
-    [disabled]="actionsDisabled" style="min-width: 120px;">
-    <div class="flex items-center gap-2">
+<div [@slideInOut]="slideState"
+  class="z-20 fixed bottom-0 left-0 right-0 flex justify-center px-3 sm:px-4 pb-3 sm:pb-4 pt-3 safe-area-bottom">
+  <div class="flex items-center gap-2 sm:gap-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/60 dark:border-gray-700/60 px-3 py-2 sm:px-4 sm:py-2.5">
+    <button (click)="onDeselectAllClick()"
+      class="action-btn group flex flex-col items-center gap-0.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/40 transition-colors min-h-[44px] min-w-[52px] sm:min-w-[72px]"
+      [class.opacity-50]="actionsDisabled" [class.pointer-events-none]="actionsDisabled"
+      [disabled]="actionsDisabled">
+      <mat-icon class="text-[20px] h-5 w-5">deselect</mat-icon>
+      <span class="text-[10px] sm:text-xs font-medium leading-tight">Deselect ({{ selectedCount }})</span>
+    </button>
+
+    <div class="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
+
+    <button (click)="onDeleteClick()"
+      class="action-btn group flex flex-col items-center gap-0.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors min-h-[44px] min-w-[52px] sm:min-w-[72px]"
+      [class.opacity-50]="actionsDisabled" [class.pointer-events-none]="actionsDisabled"
+      [disabled]="actionsDisabled">
       @if(areFilesBeingDeleted) {
-      <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
       </svg>
       } @else {
-      <mat-icon>delete</mat-icon>
+      <mat-icon class="text-[20px] h-5 w-5">delete_outline</mat-icon>
       }
-      <span>{{ actionLabel }}</span>
-    </div>
-  </button>
-  <button [disabled]="actionsDisabled" (click)="onDownloadClick()"
-    class="px-3 py-1 bg-blue-500 text-white text-sm rounded flex items-center gap-2 hover:bg-blue-700">
-    <div class="flex items-center gap-2">
+      <span class="text-[10px] sm:text-xs font-medium leading-tight">{{ deleteLabel }}</span>
+    </button>
+
+    <div class="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
+
+    <button (click)="onAddToAlbumClick()"
+      class="action-btn group flex flex-col items-center gap-0.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors min-h-[44px] min-w-[52px] sm:min-w-[72px]"
+      [class.opacity-50]="actionsDisabled" [class.pointer-events-none]="actionsDisabled"
+      [disabled]="actionsDisabled">
+      @if(areFilesBeingAssigned) {
+      <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+      </svg>
+      } @else {
+      <mat-icon class="text-[20px] h-5 w-5">photo_album</mat-icon>
+      }
+      <span class="text-[10px] sm:text-xs font-medium leading-tight">{{ albumLabel }}</span>
+    </button>
+
+    <div class="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
+
+    <button (click)="onDownloadClick()"
+      class="action-btn group flex flex-col items-center gap-0.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors min-h-[44px] min-w-[52px] sm:min-w-[72px]"
+      [class.opacity-50]="actionsDisabled" [class.pointer-events-none]="actionsDisabled"
+      [disabled]="actionsDisabled">
       @if(areFilesBeingDownloaded) {
-      <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
       </svg>
       } @else {
-      <mat-icon>cloud_download</mat-icon>
+      <mat-icon class="text-[20px] h-5 w-5">download</mat-icon>
       }
-      <span>{{ downloadLabel }}</span>
-    </div>
-  </button>
+      <span class="text-[10px] sm:text-xs font-medium leading-tight">{{ dlLabel }}</span>
+    </button>
+  </div>
 </div>
